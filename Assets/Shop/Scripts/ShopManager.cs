@@ -51,6 +51,7 @@ public class ShopManager : MonoBehaviour
     public GameObject itemPrefab;
     public GameObject noItemsTextPrefab;
      private GameObject selectedItemObject = null; // 선택된 아이템을 저장하는 변수
+     public ScrollRect itemScrollRect; // ScrollRect 컴포넌트를 참조하는 변수
 
     private int selectedShopId;
     private int selectedCategoryId = 4; // 기본 카테고리: 가방
@@ -74,8 +75,12 @@ public class ShopManager : MonoBehaviour
         // API에서 상점 및 모든 아이템 데이터를 초기 로드
         GetShopsAndItemsFromAPI();
 
+         // 드롭다운에서 선택 변경 시 이벤트 설정
+        DropdownItemOption.onValueChanged.AddListener(OnOptionSelected);
+
         // 드롭다운 및 카테고리 버튼 클릭 시 이벤트 설정
         DropdownShop.onValueChanged.AddListener(OnShopSelected);
+
         ButtonHat.onClick.AddListener(() => OnCategorySelected(hatCategoryId, ButtonHat));
         ButtonNecklace.onClick.AddListener(() => OnCategorySelected(necklaceCategoryId, ButtonNecklace));
         ButtonGlasses.onClick.AddListener(() => OnCategorySelected(glassesCategoryId, ButtonGlasses));
@@ -84,8 +89,9 @@ public class ShopManager : MonoBehaviour
         // 카트 버튼 클릭 시 이벤트 설정
         ButtonCart.onClick.AddListener(OnCartButtonClicked);
 
-        // 드롭다운에서 선택 변경 시 이벤트 설정
-        DropdownItemOption.onValueChanged.AddListener(OnOptionSelected);
+        
+
+
     }
 
     // 상점 및 상점별 카테고리별 아이템을 모두 API로부터 가져오는 함수
@@ -198,15 +204,17 @@ public class ShopManager : MonoBehaviour
 
          DropdownItemOption.ClearOptions(); // 상점을 변경하면 옵션 드롭다운을 초기화
 
-         // !!! 선택된 아이템 해제
+         // 선택된 아이템 해제
         if (selectedItemObject != null)
         {
-            SetItemBorderColor(selectedItemObject, false); // !!! 선택된 아이템 테두리 해제
-            selectedItemObject = null; // !!! 선택 상태 해제
+            SetItemBorderColor(selectedItemObject, false); // 선택된 아이템 테두리 해제
+            selectedItemObject = null; // 선택 상태 해제
         }
 
         // 아이템이 있는 첫 번째 카테고리를 찾음
         int firstAvailableCategoryId = FindFirstAvailableCategory(selectedShopId);
+
+        Debug.Log(firstAvailableCategoryId);
 
         if (firstAvailableCategoryId != -1)
         {
@@ -218,10 +226,15 @@ public class ShopManager : MonoBehaviour
             // 아이템이 없으면 기본 카테고리로 이동
             OnCategorySelected(bagCategoryId, ButtonBag);
         }
-        
+
+        // 스크롤을 맨 위로 이동시킴
+        if (itemScrollRect != null)
+        {
+            itemScrollRect.normalizedPosition = new Vector2(0, 1); // 스크롤을 맨 위로 설정
+        }
     }
 
-    // !!! 카테고리에 따라 버튼 활성화/비활성화하는 함수 !!!
+    // 카테고리에 따라 버튼 활성화/비활성화하는 함수
     void UpdateCategoryButtons(int shopId)
     {
         ButtonHat.interactable = shopItems.ContainsKey(shopId) && shopItems[shopId].ContainsKey(hatCategoryId) && shopItems[shopId][hatCategoryId].Count > 0;
@@ -274,10 +287,7 @@ public class ShopManager : MonoBehaviour
             List<Item> itemsToShow = shopItems[selectedShopId][selectedCategoryId];
             CreateItemUI(itemsToShow);
         }
-        else
-        {
-            CreateItemUI(new List<Item>()); // 아이템이 없으면 빈 리스트 처리
-        }
+    
     }
 
     // 버튼 배경색 변경 함수
@@ -342,49 +352,49 @@ public class ShopManager : MonoBehaviour
     void SetItemBorderColor(GameObject itemObject, bool enableBorder, Color borderColor = default)
     {
         // 프리팹의 루트에 Outline 컴포넌트를 찾음
-    var outline = itemObject.GetComponent<Outline>();
+        var outline = itemObject.GetComponent<Outline>();
 
-    if (!enableBorder) // 테두리를 제거할 경우
-    {
-        if (outline != null) 
+        if (!enableBorder) // 테두리를 제거할 경우
         {
-            Destroy(outline); // Outline 컴포넌트 제거
+            if (outline != null) 
+            {
+                Destroy(outline); // Outline 컴포넌트 제거
+            }
         }
-    }
-    else // 테두리를 추가하거나 색상을 변경할 경우
-    {
-        if (outline == null) 
+        else // 테두리를 추가하거나 색상을 변경할 경우
         {
-            outline = itemObject.AddComponent<Outline>(); // Outline 컴포넌트가 없으면 추가
-        }
+            if (outline == null) 
+            {
+                outline = itemObject.AddComponent<Outline>(); // Outline 컴포넌트가 없으면 추가
+            }
 
-        outline.effectColor = borderColor; // 테두리 색상 설정
-        outline.effectDistance = new Vector2(5, 5); // 테두리 두께 설정
-    }
+            outline.effectColor = borderColor; // 테두리 색상 설정
+            outline.effectDistance = new Vector2(5, 5); // 테두리 두께 설정
+        }
     }
 
     // 아이템 선택 시 호출되는 함수 (아이템 옵션을 드롭다운에 추가)
     public void OnItemSelected(GameObject clickedItemObject, Item selectedItem)
     {
-        // !!! 이미 선택된 아이템을 클릭했을 때 선택 해제
+        // 이미 선택된 아이템을 클릭했을 때 선택 해제
         if (selectedItemObject == clickedItemObject)
         {
-            SetItemBorderColor(clickedItemObject, false); // !!! 테두리 제거
-            selectedItemObject = null; // !!! 선택 해제
-            DropdownItemOption.ClearOptions(); // !!! 옵션 드롭다운 초기화
+            SetItemBorderColor(clickedItemObject, false); // 테두리 제거
+            selectedItemObject = null; // 선택 해제
+            DropdownItemOption.ClearOptions(); // 옵션 드롭다운 초기화
             return;
         }
 
-        // !!! 다른 아이템을 클릭했을 때 처리
+        // 다른 아이템을 클릭했을 때 처리
         // 기존에 선택된 아이템이 있으면 테두리 해제
         if (selectedItemObject != null)
         {
-            SetItemBorderColor(selectedItemObject, false); // !!! 이전 아이템 테두리 해제
+            SetItemBorderColor(selectedItemObject, false); // 이전 아이템 테두리 해제
         }
 
         // 새로운 아이템 선택
-        selectedItemObject = clickedItemObject; // !!! 새로 선택된 아이템 저장
-        SetItemBorderColor(selectedItemObject, true, BolderColor); // !!! 선택된 아이템에 주황색 테두리 적용
+        selectedItemObject = clickedItemObject; // 새로 선택된 아이템 저장
+        SetItemBorderColor(selectedItemObject, true, BolderColor); // 선택된 아이템에 주황색 테두리 적용
 
         // 기존 드롭다운 옵션 초기화
         DropdownItemOption.ClearOptions();
