@@ -57,6 +57,7 @@ public class ShopManager : MonoBehaviour
        // 선택된 버튼의 색상
     public Color selectedButtonColor = new Color(0.7f, 0.7f, 0.7f, 1.0f); // 진한 회색
     public Color defaultButtonColor = new Color(1f, 1f, 1f, 1.0f); // 기본 흰색
+    public Color BolderColor = new Color(1f, 0.549f, 0f, 1f);
 
     // 카테고리 ID
     private readonly int hatCategoryId = 1;
@@ -163,21 +164,49 @@ public class ShopManager : MonoBehaviour
     {
         selectedShopId = shops[index].shopId;
         SetShopData(shopPrefab, shops[index]); // 상점 이미지 로드
-         // 상점을 변경해도 마지막으로 선택된 카테고리 유지
-        switch (selectedCategoryId)
+
+        // 아이템이 있는 첫 번째 카테고리를 찾음
+        int firstAvailableCategoryId = FindFirstAvailableCategory(selectedShopId);
+
+        if (firstAvailableCategoryId != -1)
         {
-            case 1:
-                OnCategorySelected(hatCategoryId, ButtonHat);
-                break;
-            case 2:
-                OnCategorySelected(necklaceCategoryId, ButtonNecklace);
-                break;
-            case 3:
-                OnCategorySelected(glassesCategoryId, ButtonGlasses);
-                break;
-            case 4:
-                OnCategorySelected(bagCategoryId, ButtonBag);
-                break;
+            // 아이템이 있는 첫 번째 카테고리로 이동
+            OnCategorySelected(firstAvailableCategoryId, GetCategoryButton(firstAvailableCategoryId));
+        }
+        else
+        {
+            // 아이템이 없으면 기본 카테고리로 이동
+            OnCategorySelected(bagCategoryId, ButtonBag);
+        }
+    }
+
+    // 상점의 카테고리들 중 첫 번째로 아이템이 존재하는 카테고리를 찾는 함수
+    int FindFirstAvailableCategory(int shopId)
+    {
+        int[] categoryIds = { hatCategoryId, necklaceCategoryId, glassesCategoryId, bagCategoryId };
+
+        foreach (int categoryId in categoryIds)
+        {
+            // 해당 카테고리에 아이템이 있는지 확인
+            if (shopItems.ContainsKey(shopId) && shopItems[shopId].ContainsKey(categoryId) && shopItems[shopId][categoryId].Count > 0)
+            {
+                return categoryId; // 아이템이 있는 첫 번째 카테고리 반환
+            }
+        }
+
+        return -1; // 아이템이 없는 경우 -1 반환
+    }
+
+    // 카테고리 ID에 맞는 UI 버튼을 반환해줌
+    Button GetCategoryButton(int categoryId)
+    {
+        switch (categoryId)
+        {
+            case 1: return ButtonHat;
+            case 2: return ButtonNecklace;
+            case 3: return ButtonGlasses;
+            case 4: return ButtonBag;
+            default: return null;
         }
     }
 
@@ -254,14 +283,49 @@ public class ShopManager : MonoBehaviour
 
         // 아이템을 클릭하면 해당 아이템의 옵션을 드롭다운에 추가
         Button itemButton = itemObject.GetComponent<Button>();
-        itemButton.onClick.AddListener(() => OnItemSelected(item)); // 아이템 선택 시 함수 호출
+        itemButton.onClick.AddListener(() => OnItemSelected(itemObject, item)); // 아이템 선택 시 함수 호출
 
         StartCoroutine(LoadItemImage(item.itemImageUrl, itemObject));
     }
 
-    // 아이템 선택 시 호출되는 함수 (아이템 옵션을 드롭다운에 추가)
-    public void OnItemSelected(Item selectedItem)
+    // 선택된 아이템 프리팹에 테두리를 설정하고 색상을 변경하는 함수
+    void SetItemBorderColor(GameObject itemObject, bool enableBorder, Color borderColor = default)
     {
+        // 프리팹의 루트에 Outline 컴포넌트를 찾음
+    var outline = itemObject.GetComponent<Outline>();
+
+    if (!enableBorder) // 테두리를 제거할 경우
+    {
+        if (outline != null) 
+        {
+            Destroy(outline); // Outline 컴포넌트 제거
+        }
+    }
+    else // 테두리를 추가하거나 색상을 변경할 경우
+    {
+        if (outline == null) 
+        {
+            outline = itemObject.AddComponent<Outline>(); // Outline 컴포넌트가 없으면 추가
+        }
+
+        outline.effectColor = borderColor; // 테두리 색상 설정
+        outline.effectDistance = new Vector2(5, 5); // 테두리 두께 설정
+    }
+    }
+
+    // 아이템 선택 시 호출되는 함수 (아이템 옵션을 드롭다운에 추가)
+    public void OnItemSelected(GameObject selectedItemObject, Item selectedItem)
+    {
+         // 모든 아이템의 테두리를 제거
+    foreach (Transform child in itemParent)
+    {
+        SetItemBorderColor(child.gameObject, false); // *** 선택되지 않은 아이템의 테두리를 제거
+    }
+
+
+        // 선택된 아이템의 테두리 색상을 주황색으로 변경
+        SetItemBorderColor(selectedItemObject, true, BolderColor); // *** 선택된 아이템에 주황색 테두리 적용
+
         // 기존 드롭다운 옵션 초기화
         DropdownItemOption.ClearOptions();
 

@@ -775,8 +775,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
+  m_Sprite: {fileID: 21300000, guid: 3579bc0a970c2bd4483a417715b13f0a, type: 3}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -1388,7 +1388,7 @@ MonoBehaviour:
   itemParent: {fileID: 801622676}
   itemPrefab: {fileID: 8301313746092603315, guid: 6c06582f709c13c47a03138fc061d3e4, type: 3}
   noItemsTextPrefab: {fileID: 6414846166111595974, guid: a925eb1ca567f654e820fdde4ace7ac7, type: 3}
-  selectedButtonColor: {r: 0.7, g: 0.7, b: 0.7, a: 1}
+  selectedButtonColor: {r: 0.08627451, g: 0.105882354, b: 0.16862746, a: 1}
   defaultButtonColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &683858920
 GameObject:
@@ -3981,7 +3981,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Texture: {fileID: 0}
+  m_Texture: {fileID: 2800000, guid: 3579bc0a970c2bd4483a417715b13f0a, type: 3}
   m_UVRect:
     serializedVersion: 2
     x: 0
@@ -4054,8 +4054,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
+  m_Sprite: {fileID: 21300000, guid: 3579bc0a970c2bd4483a417715b13f0a, type: 3}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
