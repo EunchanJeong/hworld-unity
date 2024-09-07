@@ -10,6 +10,7 @@ public class ShopManager : MonoBehaviour
     // 상점과 아이템을 가져올 API 엔드포인트
     private string ShopListapiUrl = "http://localhost:8080/shop";
     private string ShopItemListapiUrl = "http://localhost:8080/shop/item";
+    private string CartApiUrl = "http://localhost:8080/carts"; // 카트 API URL
 
     // 상점 정보를 담는 클래스
     public class Shop
@@ -42,6 +43,7 @@ public class ShopManager : MonoBehaviour
     public Dropdown DropdownShop;
     public Dropdown DropdownItemOption; // 아이템 옵션 선택 드롭다운
     public Button ButtonHat, ButtonNecklace, ButtonGlasses, ButtonBag;
+    public Button ButtonCart; // 카트 버튼
     public GameObject shopPrefab;
     public Transform itemParent;
     public GameObject itemPrefab;
@@ -49,6 +51,12 @@ public class ShopManager : MonoBehaviour
 
     private int selectedShopId;
     private int selectedCategoryId = 4; // 기본 카테고리: 가방
+    private int selectedItemOptionId; // 선택된 아이템 옵션 ID 저장
+    private List<ItemOption> currentOptions; // 현재 아이템의 옵션 리스트
+
+       // 선택된 버튼의 색상
+    public Color selectedButtonColor = new Color(0.7f, 0.7f, 0.7f, 1.0f); // 진한 회색
+    public Color defaultButtonColor = new Color(1f, 1f, 1f, 1.0f); // 기본 흰색
 
     // 카테고리 ID
     private readonly int hatCategoryId = 1;
@@ -64,10 +72,16 @@ public class ShopManager : MonoBehaviour
 
         // 드롭다운 및 카테고리 버튼 클릭 시 이벤트 설정
         DropdownShop.onValueChanged.AddListener(OnShopSelected);
-        ButtonHat.onClick.AddListener(() => OnCategorySelected(hatCategoryId));
-        ButtonNecklace.onClick.AddListener(() => OnCategorySelected(necklaceCategoryId));
-        ButtonGlasses.onClick.AddListener(() => OnCategorySelected(glassesCategoryId));
-        ButtonBag.onClick.AddListener(() => OnCategorySelected(bagCategoryId));
+        ButtonHat.onClick.AddListener(() => OnCategorySelected(hatCategoryId, ButtonHat));
+        ButtonNecklace.onClick.AddListener(() => OnCategorySelected(necklaceCategoryId, ButtonNecklace));
+        ButtonGlasses.onClick.AddListener(() => OnCategorySelected(glassesCategoryId, ButtonGlasses));
+        ButtonBag.onClick.AddListener(() => OnCategorySelected(bagCategoryId, ButtonBag));
+
+        // 카트 버튼 클릭 시 이벤트 설정
+        ButtonCart.onClick.AddListener(OnCartButtonClicked);
+
+        // 드롭다운에서 선택 변경 시 이벤트 설정
+        DropdownItemOption.onValueChanged.AddListener(OnOptionSelected);
     }
 
     // 상점 및 상점별 카테고리별 아이템을 모두 API로부터 가져오는 함수
@@ -123,7 +137,7 @@ public class ShopManager : MonoBehaviour
                 // 상점 UI와 첫 번째 상점 및 카테고리 아이템 설정
                 CreateShopUI();
                 OnShopSelected(0); // 첫 번째 상점 선택
-                OnCategorySelected(bagCategoryId); // 기본 카테고리 선택
+                OnCategorySelected(bagCategoryId, ButtonBag); // 기본 카테고리 선택
             }
         }
     }
@@ -149,13 +163,31 @@ public class ShopManager : MonoBehaviour
     {
         selectedShopId = shops[index].shopId;
         SetShopData(shopPrefab, shops[index]); // 상점 이미지 로드
-        OnCategorySelected(selectedCategoryId); // 현재 선택된 카테고리로 아이템 갱신
+         // 상점을 변경해도 마지막으로 선택된 카테고리 유지
+        switch (selectedCategoryId)
+        {
+            case 1:
+                OnCategorySelected(hatCategoryId, ButtonHat);
+                break;
+            case 2:
+                OnCategorySelected(necklaceCategoryId, ButtonNecklace);
+                break;
+            case 3:
+                OnCategorySelected(glassesCategoryId, ButtonGlasses);
+                break;
+            case 4:
+                OnCategorySelected(bagCategoryId, ButtonBag);
+                break;
+        }
     }
 
     // 카테고리 선택 시 호출되는 함수
-    void OnCategorySelected(int categoryId)
+    void OnCategorySelected(int categoryId, Button selectedButton)
     {
         selectedCategoryId = categoryId;
+
+        // 선택된 카테고리 버튼의 배경색을 진하게 변경
+        SetButtonBackgroundColor(selectedButton);
 
         // 상점별 카테고리별로 저장된 아이템 가져와 UI 갱신
         if (shopItems.ContainsKey(selectedShopId) && shopItems[selectedShopId].ContainsKey(selectedCategoryId))
@@ -167,6 +199,19 @@ public class ShopManager : MonoBehaviour
         {
             CreateItemUI(new List<Item>()); // 아이템이 없으면 빈 리스트 처리
         }
+    }
+
+    // 버튼 배경색 변경 함수
+    void SetButtonBackgroundColor(Button selectedButton)
+    {
+        // 모든 버튼의 배경색을 기본값으로 변경
+        ButtonHat.GetComponent<Image>().color = defaultButtonColor;
+        ButtonNecklace.GetComponent<Image>().color = defaultButtonColor;
+        ButtonGlasses.GetComponent<Image>().color = defaultButtonColor;
+        ButtonBag.GetComponent<Image>().color = defaultButtonColor;
+
+        // 선택된 버튼의 배경색을 진하게 변경
+        selectedButton.GetComponent<Image>().color = selectedButtonColor;
     }
 
     // 아이템 목록을 UI에 생성하는 함수
@@ -217,21 +262,90 @@ public class ShopManager : MonoBehaviour
     // 아이템 선택 시 호출되는 함수 (아이템 옵션을 드롭다운에 추가)
     public void OnItemSelected(Item selectedItem)
     {
-        // 기존 드롭다운 옵션을 초기화
+        // 기존 드롭다운 옵션 초기화
         DropdownItemOption.ClearOptions();
 
         // 아이템의 옵션 데이터를 가져와 드롭다운에 추가
+        currentOptions = selectedItem.itemOptions; // 현재 아이템의 옵션 리스트 저장
         List<Dropdown.OptionData> optionDataList = new List<Dropdown.OptionData>();
 
         // 옵션 리스트를 순회하며 드롭다운에 추가
         foreach (var option in selectedItem.itemOptions)
         {
-            Dropdown.OptionData optionData = new Dropdown.OptionData(option.itemOption);
-            optionDataList.Add(optionData);
+            Dropdown.OptionData optionData = new Dropdown.OptionData(option.itemOption); // 옵션 이름으로 드롭다운 데이터 생성
+            optionDataList.Add(optionData); // 드롭다운 리스트에 추가
         }
 
         // 드롭다운에 옵션 데이터 추가
         DropdownItemOption.AddOptions(optionDataList);
+
+        // 첫 번째 옵션을 기본 선택 (옵션이 있으면)
+        if (selectedItem.itemOptions.Count > 0)
+        {
+            selectedItemOptionId = selectedItem.itemOptions[0].itemOptionId; // 첫 번째 옵션 ID 저장
+        }
+    }
+
+    // 드롭다운에서 옵션이 선택될 때 호출되는 함수
+    public void OnOptionSelected(int index)
+    {
+        // 옵션 리스트가 존재하고, 유효한 인덱스일 때 선택된 옵션 ID를 저장
+        if (currentOptions != null && index < currentOptions.Count)
+        {
+            selectedItemOptionId = currentOptions[index].itemOptionId; // 선택된 옵션 ID 저장
+        }
+    }
+
+    // 카트 버튼 클릭 시 호출되는 함수 (POST 요청)
+    public void OnCartButtonClicked()
+    {
+        // 선택된 옵션이 있는지 확인
+        if (selectedItemOptionId > 0)
+        {
+            StartCoroutine(PostSelectedOptionToCart(selectedItemOptionId)); // 선택된 옵션 ID를 POST로 전송
+        }
+        else
+        {
+            Debug.LogError("옵션이 선택되지 않았습니다."); // 선택된 옵션이 없을 때 에러 출력
+        }
+    }
+
+     // 선택된 옵션을 POST로 전송하는 코루틴
+    IEnumerator PostSelectedOptionToCart(int itemOptionId)
+    {
+        // 전송할 데이터 생성 (JSON 형식)
+        Dictionary<string, int> postData = new Dictionary<string, int>
+        {
+            { "itemOptionId", itemOptionId }
+        };
+
+        // JSON 데이터 직렬화
+        string jsonData = JsonConvert.SerializeObject(postData);
+
+        // 바디에 JSON 데이터를 포함한 POST 요청 생성
+        using (UnityWebRequest request = new UnityWebRequest(CartApiUrl, "POST"))
+        {
+            // 요청에 헤더 설정 (JSON 전송을 위한 Content-Type)
+            request.SetRequestHeader("Content-Type", "application/json");
+
+            // JSON 데이터를 바디에 포함
+            byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonData);
+            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+            request.downloadHandler = new DownloadHandlerBuffer();
+
+            // 요청 전송
+            yield return request.SendWebRequest();
+
+            // 응답 확인
+            if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
+            {
+                Debug.LogError("POST 요청 실패: " + request.error);
+            }
+            else
+            {
+                Debug.Log("POST 요청 성공: " + request.downloadHandler.text);
+            }
+        }
     }
 
     // 아이템 이미지를 로드하는 코루틴
