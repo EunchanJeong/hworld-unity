@@ -39,6 +39,8 @@ public class ShopManager : MonoBehaviour
     public List<Shop> shops = new List<Shop>();
     public Dictionary<int, Dictionary<int, List<Item>>> shopItems = new Dictionary<int, Dictionary<int, List<Item>>>(); // 상점 ID별, 카테고리 ID별 아이템 저장
 
+    public Dictionary<int, Item> equippedItems = new Dictionary<int, Item>(); // 장착 아이템 저장
+
     // UI 요소들
     public Dropdown DropdownShop;
     public Dropdown DropdownItemOption; // 아이템 옵션 선택 드롭다운
@@ -48,6 +50,7 @@ public class ShopManager : MonoBehaviour
     public Transform itemParent;
     public GameObject itemPrefab;
     public GameObject noItemsTextPrefab;
+     private GameObject selectedItemObject = null; // 선택된 아이템을 저장하는 변수
 
     private int selectedShopId;
     private int selectedCategoryId = 4; // 기본 카테고리: 가방
@@ -152,6 +155,9 @@ public class ShopManager : MonoBehaviour
         foreach (var shop in shops)
         {
             Dropdown.OptionData optionData = new Dropdown.OptionData(shop.shopName);
+
+             // 상점 이미지 로딩 후 옵션에 이미지 설정
+            StartCoroutine(LoadShopImageForDropdown(shop.shopImageUrl, optionData)); // 비동기 로드
             shopOptions.Add(optionData);
         }
 
@@ -159,11 +165,45 @@ public class ShopManager : MonoBehaviour
         SetShopData(shopPrefab, shops[0]);// 첫 번째 상점 이미지 로드
     }
 
+    // 상점 이미지를 로드하고 Dropdown의 OptionData에 설정하는 함수
+    IEnumerator LoadShopImageForDropdown(string imageUrl, Dropdown.OptionData optionData)
+    {
+        using (UnityWebRequest request = UnityWebRequestTexture.GetTexture(imageUrl))
+        {
+            yield return request.SendWebRequest();
+
+            if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
+            {
+                Debug.LogError("상점 이미지 로딩 실패: " + request.error);
+            }
+            else
+            {
+                // 로드된 이미지를 텍스처로 변환
+                Texture2D texture = ((DownloadHandlerTexture)request.downloadHandler).texture;
+                Sprite shopSprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f));
+
+                // Dropdown의 옵션 데이터에 이미지 추가
+                optionData.image = shopSprite;
+            }
+        }
+    }
     // 상점 선택 시 호출되는 함수
     public void OnShopSelected(int index)
     {
         selectedShopId = shops[index].shopId;
         SetShopData(shopPrefab, shops[index]); // 상점 이미지 로드
+
+        // 버튼 활성화/비활성화 로직
+        UpdateCategoryButtons(selectedShopId);
+
+         DropdownItemOption.ClearOptions(); // 상점을 변경하면 옵션 드롭다운을 초기화
+
+         // !!! 선택된 아이템 해제
+        if (selectedItemObject != null)
+        {
+            SetItemBorderColor(selectedItemObject, false); // !!! 선택된 아이템 테두리 해제
+            selectedItemObject = null; // !!! 선택 상태 해제
+        }
 
         // 아이템이 있는 첫 번째 카테고리를 찾음
         int firstAvailableCategoryId = FindFirstAvailableCategory(selectedShopId);
@@ -178,6 +218,16 @@ public class ShopManager : MonoBehaviour
             // 아이템이 없으면 기본 카테고리로 이동
             OnCategorySelected(bagCategoryId, ButtonBag);
         }
+        
+    }
+
+    // !!! 카테고리에 따라 버튼 활성화/비활성화하는 함수 !!!
+    void UpdateCategoryButtons(int shopId)
+    {
+        ButtonHat.interactable = shopItems.ContainsKey(shopId) && shopItems[shopId].ContainsKey(hatCategoryId) && shopItems[shopId][hatCategoryId].Count > 0;
+        ButtonNecklace.interactable = shopItems.ContainsKey(shopId) && shopItems[shopId].ContainsKey(necklaceCategoryId) && shopItems[shopId][necklaceCategoryId].Count > 0;
+        ButtonGlasses.interactable = shopItems.ContainsKey(shopId) && shopItems[shopId].ContainsKey(glassesCategoryId) && shopItems[shopId][glassesCategoryId].Count > 0;
+        ButtonBag.interactable = shopItems.ContainsKey(shopId) && shopItems[shopId].ContainsKey(bagCategoryId) && shopItems[shopId][bagCategoryId].Count > 0;
     }
 
     // 상점의 카테고리들 중 첫 번째로 아이템이 존재하는 카테고리를 찾는 함수
@@ -314,17 +364,27 @@ public class ShopManager : MonoBehaviour
     }
 
     // 아이템 선택 시 호출되는 함수 (아이템 옵션을 드롭다운에 추가)
-    public void OnItemSelected(GameObject selectedItemObject, Item selectedItem)
+    public void OnItemSelected(GameObject clickedItemObject, Item selectedItem)
     {
-         // 모든 아이템의 테두리를 제거
-    foreach (Transform child in itemParent)
-    {
-        SetItemBorderColor(child.gameObject, false); // *** 선택되지 않은 아이템의 테두리를 제거
-    }
+        // !!! 이미 선택된 아이템을 클릭했을 때 선택 해제
+        if (selectedItemObject == clickedItemObject)
+        {
+            SetItemBorderColor(clickedItemObject, false); // !!! 테두리 제거
+            selectedItemObject = null; // !!! 선택 해제
+            DropdownItemOption.ClearOptions(); // !!! 옵션 드롭다운 초기화
+            return;
+        }
 
+        // !!! 다른 아이템을 클릭했을 때 처리
+        // 기존에 선택된 아이템이 있으면 테두리 해제
+        if (selectedItemObject != null)
+        {
+            SetItemBorderColor(selectedItemObject, false); // !!! 이전 아이템 테두리 해제
+        }
 
-        // 선택된 아이템의 테두리 색상을 주황색으로 변경
-        SetItemBorderColor(selectedItemObject, true, BolderColor); // *** 선택된 아이템에 주황색 테두리 적용
+        // 새로운 아이템 선택
+        selectedItemObject = clickedItemObject; // !!! 새로 선택된 아이템 저장
+        SetItemBorderColor(selectedItemObject, true, BolderColor); // !!! 선택된 아이템에 주황색 테두리 적용
 
         // 기존 드롭다운 옵션 초기화
         DropdownItemOption.ClearOptions();
@@ -333,7 +393,6 @@ public class ShopManager : MonoBehaviour
         currentOptions = selectedItem.itemOptions; // 현재 아이템의 옵션 리스트 저장
         List<Dropdown.OptionData> optionDataList = new List<Dropdown.OptionData>();
 
-        // 옵션 리스트를 순회하며 드롭다운에 추가
         foreach (var option in selectedItem.itemOptions)
         {
             Dropdown.OptionData optionData = new Dropdown.OptionData(option.itemOption); // 옵션 이름으로 드롭다운 데이터 생성
