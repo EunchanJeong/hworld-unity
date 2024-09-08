@@ -1,3 +1,7 @@
+#if UNITY_EDITOR // 이 코드 블록은 에디터에서만 실행되도록 설정
+using UnityEditor; // AssetDatabase를 사용하기 위해 필요한 네임스페이스
+#endif
+
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
@@ -68,6 +72,23 @@ public class ShopManager : MonoBehaviour
     private readonly int necklaceCategoryId = 2;
     private readonly int glassesCategoryId = 3;
     private readonly int bagCategoryId = 4;
+
+
+    // 캐릭터 3D 모델을 참조할 변수
+    public GameObject characterModel; // 캐릭터 3D 모델
+    public Transform headBone; // 모자나 안경을 장착할 위치 (머리)
+    public Transform handBone; // 가방이나 목걸이를 장착할 위치 (몸)
+
+    // 아이템 프리팹을 관리할 Dictionary
+    public Dictionary<string, GameObject> itemPrefabs = new Dictionary<string, GameObject>(); // 아이템 프리팹들을 저장하는 딕셔너리
+
+    private GameObject equippedHat;     // 장착된 모자
+    private GameObject equippedNecklace; // 장착된 목걸이
+    private GameObject equippedGlasses; // 장착된 안경
+    private GameObject equippedBag;     // 장착된 가방
+
+     // FBX 파일이 저장된 경로 (Assets/Shop/Items)
+    private string fbxPath = "Assets/Shop/Items/";
 
     // 게임이 시작될 때 실행되는 함수
     void Start()
@@ -417,6 +438,80 @@ public class ShopManager : MonoBehaviour
         {
             selectedItemOptionId = selectedItem.itemOptions[0].itemOptionId; // 첫 번째 옵션 ID 저장
         }
+
+        // 선택된 아이템 옵션에 맞는 FBX 파일을 장착
+        string category = DetermineItemCategory(selectedItem);
+        EquipItemOnCharacter(selectedItemOptionId); // !!! 카테고리 ID로 장착 처리
+    }
+
+      // 선택된 아이템의 카테고리 결정 (모자, 목걸이, 안경, 가방 등)
+    string DetermineItemCategory(Item item)
+    {
+        if (item.itemName.Contains("모자"))
+            return "Hat";
+        else if (item.itemName.Contains("목걸이"))
+            return "Necklace";
+        else if (item.itemName.Contains("안경"))
+            return "Glasses";
+        else if (item.itemName.Contains("가방"))
+            return "Bag";
+        return null;
+    }
+
+    // FBX 파일을 로드하고 캐릭터에 장착하는 함수
+    void EquipItemOnCharacter(int itemOptionId)
+    {
+        #if UNITY_EDITOR
+        // itemOptionId에 해당하는 FBX 파일을 경로에서 로드
+        string fbxFilePath = $"{fbxPath}{itemOptionId}.fbx";
+        GameObject itemPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(fbxFilePath);
+
+        if (itemPrefab == null)
+        {
+            Debug.LogError($"FBX 파일을 찾을 수 없습니다: {fbxFilePath}");
+            return;
+        }
+
+        Debug.Log("FBX 가져옴");
+
+        // 선택된 카테고리 ID에 따라 본에 장착
+        switch (selectedCategoryId)
+        {
+            case 1: // 모자
+                if (equippedHat != null) Destroy(equippedHat);
+                equippedHat = Instantiate(itemPrefab, headBone); // 머리 본에 모자 장착
+                equippedHat.transform.localPosition = Vector3.zero;
+                equippedHat.transform.localRotation = Quaternion.identity;
+                break;
+
+            case 2: // 목걸이
+                if (equippedNecklace != null) Destroy(equippedNecklace);
+                equippedNecklace = Instantiate(itemPrefab, handBone); // 몸 본에 목걸이 장착
+                equippedNecklace.transform.localPosition = Vector3.zero;
+                equippedNecklace.transform.localRotation = Quaternion.identity;
+                break;
+
+            case 3: // 안경
+                if (equippedGlasses != null) Destroy(equippedGlasses);
+                equippedGlasses = Instantiate(itemPrefab, headBone); // 머리 본에 안경 장착
+                equippedGlasses.transform.localPosition = Vector3.zero;
+                equippedGlasses.transform.localRotation = Quaternion.identity;
+                break;
+
+            case 4: // 가방
+                Debug.Log("가방 장착");
+                if (equippedBag != null) Destroy(equippedBag);
+                equippedBag = Instantiate(itemPrefab, handBone); // 손 본에 가방 장착
+                equippedBag.transform.localPosition = new Vector3(-0.0009840119f, 0.002121457f, -0.0006234f); // !!! 주신 로컬 위치 값 적용
+                equippedBag.transform.localRotation = Quaternion.identity; // 로컬 회전은 기본으로 설정
+                equippedBag.transform.localScale = new Vector3(0.1546509f, 0.1093701f, 0.02660948f); // !!! 주신 로컬 스케일 값 적용
+                break;
+
+            default:
+                Debug.LogError("잘못된 카테고리 ID입니다.");
+                break;
+        }
+        #endif
     }
 
     // 드롭다운에서 옵션이 선택될 때 호출되는 함수
@@ -426,6 +521,9 @@ public class ShopManager : MonoBehaviour
         if (currentOptions != null && index < currentOptions.Count)
         {
             selectedItemOptionId = currentOptions[index].itemOptionId; // 선택된 옵션 ID 저장
+
+             selectedItemOptionId = currentOptions[index].itemOptionId;  // !!! 수정: itemOptionId 사용
+            EquipItemOnCharacter(selectedItemOptionId); // !!! 카테고리 ID로 장착 처리
         }
     }
 
