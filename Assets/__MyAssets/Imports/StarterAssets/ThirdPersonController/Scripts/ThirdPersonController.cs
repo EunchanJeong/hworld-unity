@@ -1,4 +1,5 @@
-﻿ using UnityEngine;
+﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 #if ENABLE_INPUT_SYSTEM 
 using UnityEngine.InputSystem;
 #endif
@@ -150,6 +151,9 @@ namespace StarterAssets
             // reset our timeouts on start
             _jumpTimeoutDelta = JumpTimeout;
             _fallTimeoutDelta = FallTimeout;
+
+            // 커서 락 적용
+            Cursor.lockState = CursorLockMode.Locked;
         }
 
         private void Update()
@@ -159,6 +163,12 @@ namespace StarterAssets
             JumpAndGravity();
             GroundedCheck();
             Move();
+
+            // Q 입력 시 퀘스트 씬으로 이동
+            if (Input.GetKeyDown(KeyCode.Q))
+            {
+                SceneManager.LoadScene("QuestListScene");
+            }
         }
 
         private void LateUpdate()

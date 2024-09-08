@@ -4,7 +4,8 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
 using Newtonsoft.Json;
-using System;
+using UnityEngine.SceneManagement;
+using StarterAssets;
 
 public class QuestListResponseDTO
 {
@@ -32,6 +33,22 @@ public class QuestManager : MonoBehaviour
     {
         // 퀘스트 목록을 가져오는 메서드 호출
         GetQuestList(0);
+
+        // 나가기 버튼에 MainScene으로 이동 리스너 추가
+        GameObject iconExit = GameObject.Find("IconExit");
+        iconExit.GetComponent<Button>().onClick.AddListener(() => SceneManager.LoadScene("MainScene"));
+
+        // 커서 락 해제
+        Cursor.lockState = CursorLockMode.None;
+
+    }
+
+    private void Update() {
+        // Esc 버튼 클릭 시 나가기
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            SceneManager.LoadScene("MainScene");
+        }
     }
 
     public void GetQuestList(int currentQuestId)
