@@ -8,6 +8,7 @@ using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using UnityEngine.SceneManagement;
 
 public class ShopManager : MonoBehaviour
 {
@@ -90,11 +91,38 @@ public class ShopManager : MonoBehaviour
      // FBX 파일이 저장된 경로 (Assets/Shop/Items)
     private string fbxPath = "Assets/Shop/Items/";
 
+    private GameObject characterInstance; // 캐릭터 인스턴스
+
     // 게임이 시작될 때 실행되는 함수
     void Start()
     {
         // API에서 상점 및 모든 아이템 데이터를 초기 로드
         GetShopsAndItemsFromAPI();
+        
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+        characterInstance = ChangeShopSceneWithCharacter.Instance.characterInstance;
+        Debug.Log("전달받은 characterInstance -> " + characterInstance);
+        if (characterInstance != null)
+        {
+            Debug.Log("캐릭터 인스턴스를 찾았습니다.");
+            
+            // 캐릭터를 2D 환경에 맞게 설정
+            SetupCharacterFor2D(characterInstance);
+
+            GameObject canvasObject = GameObject.Find("Canvas");
+            characterInstance.transform.SetParent(canvasObject.transform);
+            characterInstance.transform.localPosition = new Vector3(399, -331, -84);
+            characterInstance.transform.localRotation = Quaternion.Euler(0, 180, 0);
+            characterInstance.transform.localScale = new Vector3(380, 380, 380);
+
+            // handBone을 characterInstance 내 hand_l 본으로 설정
+        handBone = FindBone(characterInstance.transform, "hand_l");
+        if (handBone == null)
+        {
+            Debug.LogError("hand_l 본을 찾을 수 없습니다.");
+        }
+        }
 
          // 드롭다운에서 선택 변경 시 이벤트 설정
         DropdownItemOption.onValueChanged.AddListener(OnOptionSelected);
@@ -110,14 +138,28 @@ public class ShopManager : MonoBehaviour
         // 카트 버튼 클릭 시 이벤트 설정
         ButtonCart.onClick.AddListener(OnCartButtonClicked);
 
-        
-
-
+        // 나가기 버튼에 MainScene으로 이동 리스너 추가
+        GameObject iconExit = GameObject.Find("IconExit");
+        if (iconExit != null)
+        {
+            Button exitButton = iconExit.GetComponent<Button>();
+            exitButton.onClick.AddListener(() =>
+            {
+                SaveEquippedItems(); // 장착 아이템 상태 저장
+                SceneManager.LoadScene("MainScene"); // MainScene으로 이동
+            });
+        }
+        else
+        {
+            Debug.LogError("IconExit 버튼을 찾을 수 없습니다.");
+        }
     }
+
 
     // 상점 및 상점별 카테고리별 아이템을 모두 API로부터 가져오는 함수
     public void GetShopsAndItemsFromAPI()
     {
+        SaveEquippedItems(); // !!! MainScene으로 이동하기 전 장착 아이템 상태를 저장
         StartCoroutine(GetShopsAndItems());
     }
 
@@ -171,6 +213,19 @@ public class ShopManager : MonoBehaviour
                 OnCategorySelected(bagCategoryId, ButtonBag); // 기본 카테고리 선택
             }
         }
+    }
+
+        // 트랜스폼 내에서 이름이 대소문자와 관계없이 특정 이름을 가진 본을 찾는 함수
+    Transform FindBone(Transform parent, string boneName)
+    {
+        foreach (Transform child in parent.GetComponentsInChildren<Transform>())
+        {
+            if (string.Equals(child.name, boneName, System.StringComparison.OrdinalIgnoreCase))
+            {
+                return child;
+            }
+        }
+        return null;
     }
 
     // 상점 UI 생성
@@ -252,6 +307,22 @@ public class ShopManager : MonoBehaviour
         if (itemScrollRect != null)
         {
             itemScrollRect.normalizedPosition = new Vector2(0, 1); // 스크롤을 맨 위로 설정
+        }
+    }
+
+    // 캐릭터 조정
+    private void SetupCharacterFor2D(GameObject character)
+    {
+        var rb = character.GetComponent<Rigidbody>();
+        if (rb != null)
+        {
+            rb.isKinematic = true; // 물리 기반 이동 비활성화
+        }
+
+        var colliders = character.GetComponentsInChildren<Collider>();
+        foreach (var collider in colliders)
+        {
+            collider.enabled = false; // 충돌체 비활성화
         }
     }
 
@@ -403,6 +474,9 @@ public class ShopManager : MonoBehaviour
             SetItemBorderColor(clickedItemObject, false); // 테두리 제거
             selectedItemObject = null; // 선택 해제
             DropdownItemOption.ClearOptions(); // 옵션 드롭다운 초기화
+
+            // 선택된 카테고리에 해당하는 장착된 아이템을 제거
+            RemoveEquippedItem(selectedCategoryId); // !!! 아이템 선택 취소 시 장착된 아이템도 해제
             return;
         }
 
@@ -441,7 +515,7 @@ public class ShopManager : MonoBehaviour
 
         // 선택된 아이템 옵션에 맞는 FBX 파일을 장착
         string category = DetermineItemCategory(selectedItem);
-        EquipItemOnCharacter(selectedItemOptionId); // !!! 카테고리 ID로 장착 처리
+        EquipItemOnCharacter(selectedItemOptionId); // 카테고리 ID로 장착 처리
     }
 
       // 선택된 아이템의 카테고리 결정 (모자, 목걸이, 안경, 가방 등)
@@ -458,12 +532,81 @@ public class ShopManager : MonoBehaviour
         return null;
     }
 
+    // 장착된 아이템을 제거하는 함수
+void RemoveEquippedItem(int categoryId) // !!! 장착된 아이템을 제거하는 함수 추가
+{
+    switch (categoryId)
+    {
+        case 1: // 모자
+            if (equippedHat != null)
+            {
+                Destroy(equippedHat);
+                equippedHat = null;
+            }
+            break;
+        case 2: // 목걸이
+            if (equippedNecklace != null)
+            {
+                Destroy(equippedNecklace);
+                equippedNecklace = null;
+            }
+            break;
+        case 3: // 안경
+            if (equippedGlasses != null)
+            {
+                Destroy(equippedGlasses);
+                equippedGlasses = null;
+            }
+            break;
+        case 4: // 가방
+            if (equippedBag != null)
+            {
+                Destroy(equippedBag);
+                equippedBag = null;
+            }
+            break;
+        default:
+            Debug.LogError("잘못된 카테고리 ID입니다.");
+            break;
+    }
+}
+
+    // 트랜스폼 내에서 이름에 특정 단어가 포함된 자식을 찾는 함수 (대소문자 구분 없음)
+    Transform FindObjectContainingName(Transform parent, string partialName)
+    {
+        foreach (Transform child in parent.GetComponentsInChildren<Transform>())
+        {
+            if (child.name.ToLower().Contains(partialName.ToLower()))
+            {
+                return child;
+            }
+        }
+        return null;
+    }
+
+    // 카테고리 ID에 따른 카테고리 이름을 반환하는 함수
+    string GetCategoryNameById(int categoryId)
+    {
+        switch (categoryId)
+        {
+            case 1: return "hat";      // 모자
+            case 2: return "necklace"; // 목걸이
+            case 3: return "glasses";  // 안경
+            case 4: return "bag";      // 가방
+            default: return "unknown";
+        }
+    }
+
     // FBX 파일을 로드하고 캐릭터에 장착하는 함수
     void EquipItemOnCharacter(int itemOptionId)
     {
         #if UNITY_EDITOR
-        // itemOptionId에 해당하는 FBX 파일을 경로에서 로드
-        string fbxFilePath = $"{fbxPath}{itemOptionId}.fbx";
+        // 카테고리 이름 결정
+        string categoryName = GetCategoryNameById(selectedCategoryId);
+
+        // itemOptionId에 해당하는 FBX 파일을 경로에서 로드 (형식: "categoryName_itemOptionId.fbx")
+        string fbxFileName = $"{categoryName}_{itemOptionId}.fbx";
+        string fbxFilePath = $"{fbxPath}{fbxFileName}";
         GameObject itemPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(fbxFilePath);
 
         if (itemPrefab == null)
@@ -500,15 +643,20 @@ public class ShopManager : MonoBehaviour
 
             case 4: // 가방
                 Debug.Log("가방 장착");
-                if (equippedBag != null) 
+
+                // handBone에서 "bag"이라는 단어가 포함된 오브젝트 제거
+                Transform existingBag = FindObjectContainingName(handBone, "bag");
+                if (existingBag != null)
                 {
-                    Debug.Log("장착 가방 삭제");
-                    Destroy(equippedBag);
+                    Debug.Log("기존 가방 삭제");
+                    Destroy(existingBag.gameObject);
                 }
+
+                // 새로운 가방 장착
                 equippedBag = Instantiate(itemPrefab, handBone); // 손 본에 가방 장착
-                equippedBag.transform.localPosition = new Vector3(-0.0009840119f, 0.002121457f, -0.0006234f); // !!! 주신 로컬 위치 값 적용
+                equippedBag.transform.localPosition = new Vector3(-0.0009840119f, 0.002121457f, -0.0006234f); // 주신 로컬 위치 값 적용
                 equippedBag.transform.localRotation = Quaternion.identity; // 로컬 회전은 기본으로 설정
-                equippedBag.transform.localScale = new Vector3(0.1546509f, 0.1093701f, 0.02660948f); // !!! 주신 로컬 스케일 값 적용
+                equippedBag.transform.localScale = new Vector3(0.1546509f, 0.1093701f, 0.02660948f); // 주신 로컬 스케일 값 적용
                 break;
 
             default:
@@ -516,6 +664,24 @@ public class ShopManager : MonoBehaviour
                 break;
         }
         #endif
+    }
+
+    // 장착한 아이템을 저장하는 함수
+    void SaveEquippedItems()
+    {
+        if (equippedHat != null)
+            PlayerPrefs.SetInt("EquippedHat", selectedItemOptionId); // 모자 정보 저장
+        
+        if (equippedNecklace != null)
+            PlayerPrefs.SetInt("EquippedNecklace", selectedItemOptionId); // 목걸이 정보 저장
+        
+        if (equippedGlasses != null)
+            PlayerPrefs.SetInt("EquippedGlasses", selectedItemOptionId); // 안경 정보 저장
+        
+        if (equippedBag != null)
+            PlayerPrefs.SetInt("EquippedBag", selectedItemOptionId); // 가방 정보 저장
+
+        PlayerPrefs.Save(); // PlayerPrefs에 저장
     }
 
     // 드롭다운에서 옵션이 선택될 때 호출되는 함수
