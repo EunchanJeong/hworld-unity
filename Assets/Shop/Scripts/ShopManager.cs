@@ -500,7 +500,11 @@ public class ShopManager : MonoBehaviour
 
             case 4: // 가방
                 Debug.Log("가방 장착");
-                if (equippedBag != null) Destroy(equippedBag);
+                if (equippedBag != null) 
+                {
+                    Debug.Log("장착 가방 삭제");
+                    Destroy(equippedBag);
+                }
                 equippedBag = Instantiate(itemPrefab, handBone); // 손 본에 가방 장착
                 equippedBag.transform.localPosition = new Vector3(-0.0009840119f, 0.002121457f, -0.0006234f); // !!! 주신 로컬 위치 값 적용
                 equippedBag.transform.localRotation = Quaternion.identity; // 로컬 회전은 기본으로 설정
