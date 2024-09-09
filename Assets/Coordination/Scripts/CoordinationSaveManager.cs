@@ -6,6 +6,7 @@ using UnityEngine.Networking;
 using Newtonsoft.Json;
 using UnityEngine.UI;
 using System.Globalization;
+using UnityEngine.SceneManagement;
 
 public class CoordinationSaveManager : MonoBehaviour
 {
@@ -48,6 +49,19 @@ public class CoordinationSaveManager : MonoBehaviour
         if (saveCoordinationButton != null)
         {
             saveCoordinationButton.onClick.AddListener(OnSaveCoordinationButtonClick);
+        }
+
+        // 나가기 버튼에 MainScene으로 이동 리스너 추가
+        GameObject iconExit = GameObject.Find("IconExit");
+        iconExit.GetComponent<Button>().onClick.AddListener(() => SceneManager.LoadScene("MainScene"));
+    }
+
+    void Update()
+    {
+        // Esc 버튼 클릭 시 나가기
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            SceneManager.LoadScene("MainScene");
         }
     }
 

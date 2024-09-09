@@ -6,8 +6,8 @@ using UnityEngine.UI;
 using Newtonsoft.Json;
 using System;
 using System.Text;
-using UnityEngine.SceneManagement;
 using System.Globalization;
+using UnityEngine.SceneManagement;
 
 namespace Coordination {
     public class CoordinationItemListResponseDTO
