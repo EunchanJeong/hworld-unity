@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using System;
 using System.Text;
 using UnityEngine.SceneManagement;
+using System.Globalization;
 
 namespace Coordination {
     public class CoordinationItemListResponseDTO
@@ -111,7 +112,8 @@ namespace Coordination {
 
                         // CoordinationTitle의 자식 오브젝트에서 Text 컴포넌트를 찾아서 가격 설정
                         Text itemPrice = newCoordinationItem.transform.Find("ItemPrice").GetComponent<Text>();
-                        itemPrice.text = coordinationItem.price.ToString();
+                        string formattedPrice = coordinationItem.price.ToString("N0", CultureInfo.InvariantCulture);
+                        itemPrice.text = formattedPrice + "원";
 
                         // CoordinationItem의 자식 오브젝트에서 Image 컴포넌트를 찾아서 이미지 설정
                         Image itemImage = newCoordinationItem.transform.Find("ItemImage").GetComponent<Image>();
