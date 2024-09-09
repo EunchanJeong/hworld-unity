@@ -33,6 +33,9 @@ namespace Coordination {
 
         private void Start()
         {
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
+
             // #2F3744 색상을 defaultButtonColor에 설정
             ColorUtility.TryParseHtmlString("#2F3744", out defaultButtonColor);
 
