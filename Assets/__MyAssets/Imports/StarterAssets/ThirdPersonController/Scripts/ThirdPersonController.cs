@@ -1,4 +1,5 @@
-﻿ using UnityEngine;
+﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 #if ENABLE_INPUT_SYSTEM 
 using UnityEngine.InputSystem;
 #endif
@@ -14,12 +15,12 @@ namespace StarterAssets
 #endif
     public class ThirdPersonController : MonoBehaviour
     {
-        [Header("Player")]
-        [Tooltip("Move speed of the character in m/s")]
-        public float MoveSpeed = 2.0f;
-
-        [Tooltip("Sprint speed of the character in m/s")]
-        public float SprintSpeed = 5.335f;
+        private float DefaultMoveSpeed = 2.0f;
+        private float DefaultSprintSpeed = 4.0f;
+        private float MoveSpeed = 2.0f;
+        private float SprintSpeed = 4.0f;
+        private float MouseSensitivity = 3.0f;
+        private float DefaultMouseSensitivity = 2.0f;
 
         [Tooltip("How fast the character turns to face movement direction")]
         [Range(0.0f, 0.3f)]
@@ -150,6 +151,34 @@ namespace StarterAssets
             // reset our timeouts on start
             _jumpTimeoutDelta = JumpTimeout;
             _fallTimeoutDelta = FallTimeout;
+
+            // 커서 락 적용
+            Cursor.lockState = CursorLockMode.Locked;
+
+            // 저장된 위치가 있다면 위치 이동
+            GameObject player = GameObject.Find("Player");
+            if (player != null && PlayerPositionManager.hasSavedPosition)
+            {
+                player.transform.position = PlayerPositionManager.LoadPosition();
+            }
+
+            if (!PlayerSettingManager.hasSavedSetting)
+            {
+                PlayerSettingManager.GetPlayerSetting(this, () => setPlayerSetting());
+            }
+            else
+            {
+                setPlayerSetting();
+            }
+        }
+
+        private void setPlayerSetting()
+        {
+            PlayerSettingDTO setting = PlayerSettingManager.LoadSetting();
+            Debug.Log("setting.speed: " + setting.speed);
+            MoveSpeed = DefaultMoveSpeed * (setting.speed / 50) + 0.5f;
+            SprintSpeed = DefaultSprintSpeed * (setting.speed / 50) + 1f;
+            MouseSensitivity = DefaultMouseSensitivity * (setting.mouseSensitivity / 50) + 1;
         }
 
         private void Update()
@@ -159,6 +188,19 @@ namespace StarterAssets
             JumpAndGravity();
             GroundedCheck();
             Move();
+
+            // Q 입력 시 퀘스트 씬으로 이동
+            if (Input.GetKeyDown(KeyCode.Q))
+            {
+                saveCharacterPosition();
+                SceneManager.LoadScene("QuestListScene");
+            }
+            // ESC 입력 시 설정 씬으로 이동
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                saveCharacterPosition();
+                SceneManager.LoadScene("PlayerSettingScene");
+            }
         }
 
         private void LateUpdate()
@@ -207,8 +249,8 @@ namespace StarterAssets
             _cinemachineTargetPitch = ClampAngle(_cinemachineTargetPitch, BottomClamp, TopClamp);
 
             // Cinemachine will follow this target
-            CinemachineCameraTarget.transform.rotation = Quaternion.Euler((_cinemachineTargetPitch + CameraAngleOverride)*3,
-                _cinemachineTargetYaw*3, 0.0f);
+            CinemachineCameraTarget.transform.rotation = Quaternion.Euler((_cinemachineTargetPitch + CameraAngleOverride)*MouseSensitivity,
+                _cinemachineTargetYaw*MouseSensitivity, 0.0f);
         }
 
         private void Move()
@@ -386,6 +428,16 @@ namespace StarterAssets
             if (animationEvent.animatorClipInfo.weight > 0.5f)
             {
                 AudioSource.PlayClipAtPoint(LandingAudioClip, transform.TransformPoint(_controller.center), FootstepAudioVolume);
+            }
+        }
+
+        private void saveCharacterPosition()
+        {
+            // 캐릭터 위치 저장
+            GameObject player = GameObject.Find("Player");
+            if (player != null)
+            {
+                PlayerPositionManager.SavePosition(player.transform.position);
             }
         }
     }
