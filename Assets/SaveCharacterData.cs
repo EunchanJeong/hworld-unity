@@ -26,15 +26,20 @@ public class SaveCharacterData : MonoBehaviour
         {
             LoadCharacterPrefab();
             Debug.Log("씬 전환");
-            StartCoroutine(TransitionAfterPrefabLoad());
+            StartCoroutine(TransitionAfterPrefabLoad("CoordinationAddScene"));
+        }
+
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            Debug.Log("씬 전환");
+            StartCoroutine(TransitionAfterPrefabLoad("CoordinationListScene"));
         }
     }
 
-    private IEnumerator TransitionAfterPrefabLoad()
+    private IEnumerator TransitionAfterPrefabLoad(string sceneName)
     {
         yield return new WaitForEndOfFrame();
-        // CoordinationSaveScene으로 전환
-        SceneManager.LoadScene("CoordinationAddScene");
+        SceneManager.LoadScene(sceneName);
     }
 
     void LoadCharacterPrefab()

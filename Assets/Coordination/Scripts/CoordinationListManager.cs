@@ -5,6 +5,7 @@ using UnityEngine.Networking;
 using UnityEngine.UI;
 using Newtonsoft.Json;
 using System;
+using UnityEngine.SceneManagement;
 
 namespace Coordination {
     public class CoordinationListResponseDTO
@@ -33,6 +34,9 @@ namespace Coordination {
 
         private void Start()
         {
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
+
             // #2F3744 색상을 defaultButtonColor에 설정
             ColorUtility.TryParseHtmlString("#2F3744", out defaultButtonColor);
 
@@ -41,6 +45,19 @@ namespace Coordination {
 
             // 코디 목록을 가져오는 메서드를 호출
             GetMemberCoordination();
+
+            // 나가기 버튼에 MainScene으로 이동 리스너 추가
+            GameObject iconExit = GameObject.Find("IconExit");
+            iconExit.GetComponent<Button>().onClick.AddListener(() => SceneManager.LoadScene("MainScene"));
+        }
+
+        void Update()
+        {
+            // Esc 버튼 클릭 시 나가기
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                SceneManager.LoadScene("MainScene");
+            }
         }
 
 
