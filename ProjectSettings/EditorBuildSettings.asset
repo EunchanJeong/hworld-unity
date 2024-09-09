@@ -14,11 +14,11 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/PlayerSetting/Scenes/PlayerSettingScene.unity
     guid: 41219d8b81f19495e980c2fd3df25ed3
-    - enabled: 1
-    path: Assets/Coordination/Scenes/CoordinationAddScene.unity
-    guid: 822afd3ae9168486fabbcb4c79fb2a98
   - enabled: 1
     path: Assets/Coordination/Scenes/CoordinationListScene.unity
     guid: b6cd52d3d8b0e44c597c813c1d568c78
+  - enabled: 1
+    path: Assets/Coordination/Scenes/CoordinationAddScene.unity
+    guid: 822afd3ae9168486fabbcb4c79fb2a98
   m_configObjects:
     com.unity.input.settings: {fileID: 11400000, guid: 9e7be553448fa2546aea5752021cbcf7, type: 2}
