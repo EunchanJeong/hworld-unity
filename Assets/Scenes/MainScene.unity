@@ -38861,6 +38861,14 @@ PrefabInstance:
       propertyPath: FootstepAudioClips.Array.data[9]
       value: 
       objectReference: {fileID: 8300000, guid: a3194b8bbc96ef84fab1f98f4b7dae3e, type: 3}
+    - target: {fileID: 7222919709222825758, guid: 73513892ff576c349834f68de4b4eec8, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7385032068410498574, guid: 73513892ff576c349834f68de4b4eec8, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7723965843873416511, guid: 73513892ff576c349834f68de4b4eec8, type: 3}
       propertyPath: m_IsActive
       value: 1
