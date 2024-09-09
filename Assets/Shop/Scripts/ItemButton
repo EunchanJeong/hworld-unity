@@ -1,0 +1,4 @@
+public class ItemButton : MonoBehaviour
+{
+    public Item item;  // 버튼에 연결된 아이템 정보
+}
