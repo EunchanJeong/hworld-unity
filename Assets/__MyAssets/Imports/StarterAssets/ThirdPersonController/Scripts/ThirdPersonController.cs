@@ -159,7 +159,18 @@ namespace StarterAssets
             GameObject player = GameObject.Find("Player");
             if (player != null && PlayerPositionManager.hasSavedPosition)
             {
+                var characterController = player.GetComponent<CharacterController>();
+                if (characterController != null)
+                {
+                    characterController.enabled = false; // 위치 변경 전 비활성화
+                }
+
                 player.transform.position = PlayerPositionManager.LoadPosition();
+
+                if (characterController != null)
+                {
+                    characterController.enabled = true; // 위치 변경 후 다시 활성화
+                }
             }
 
             if (!PlayerSettingManager.hasSavedSetting)
@@ -179,6 +190,7 @@ namespace StarterAssets
             MoveSpeed = DefaultMoveSpeed * (setting.speed / 50) + 0.5f;
             SprintSpeed = DefaultSprintSpeed * (setting.speed / 50) + 1f;
             MouseSensitivity = DefaultMouseSensitivity * (setting.mouseSensitivity / 50) + 1;
+            FootstepAudioVolume = setting.sound/100;
         }
 
         private void Update()

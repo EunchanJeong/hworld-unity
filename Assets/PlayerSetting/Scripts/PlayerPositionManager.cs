@@ -9,10 +9,12 @@ public class PlayerPositionManager : MonoBehaviour
     {
         savedPosition = position;
         hasSavedPosition = true;
+        Debug.Log("Save Player Position");
     }
 
     public static Vector3 LoadPosition()
     {
+        Debug.Log("Load Player Position");
         return savedPosition;
     }
 }
