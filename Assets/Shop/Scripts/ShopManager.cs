@@ -654,8 +654,8 @@ void RemoveEquippedItem(int categoryId) // !!! 장착된 아이템을 제거하�
 
                 // 새로운 가방 장착
                 equippedBag = Instantiate(itemPrefab, handBone); // 손 본에 가방 장착
-                equippedBag.transform.localPosition = new Vector3(-0.0009840119f, 0.002121457f, -0.0006234f); // 주신 로컬 위치 값 적용
-                equippedBag.transform.localRotation = Quaternion.identity; // 로컬 회전은 기본으로 설정
+                equippedBag.transform.localPosition = new Vector3(-0.0007f, 0.00192f, -0.00056f); // 주신 로컬 위치 값 적용
+                equippedBag.transform.localRotation = Quaternion.Euler(new Vector3(4.409f, -57.531f, -135.701f));; // 로컬 회전은 기본으로 설정
                 equippedBag.transform.localScale = new Vector3(0.1546509f, 0.1093701f, 0.02660948f); // 주신 로컬 스케일 값 적용
                 break;
 
