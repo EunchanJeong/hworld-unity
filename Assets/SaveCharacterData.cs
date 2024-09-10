@@ -26,12 +26,14 @@ public class SaveCharacterData : MonoBehaviour
         {
             LoadCharacterPrefab();
             Debug.Log("씬 전환");
+            saveCharacterPosition();
             StartCoroutine(TransitionAfterPrefabLoad("CoordinationAddScene"));
         }
 
         if (Input.GetKeyDown(KeyCode.C))
         {
             Debug.Log("씬 전환");
+            saveCharacterPosition();
             StartCoroutine(TransitionAfterPrefabLoad("CoordinationListScene"));
         }
     }
@@ -75,6 +77,16 @@ public class SaveCharacterData : MonoBehaviour
         if (component != null)
         {
             Destroy(component);
+        }
+    }
+
+    private void saveCharacterPosition()
+    {
+        // 캐릭터 위치 저장
+        GameObject player = GameObject.Find("Player");
+        if (player != null)
+        {
+            PlayerPositionManager.SavePosition(player.transform.position);
         }
     }
 }
