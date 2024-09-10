@@ -10,12 +10,15 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using UnityEngine.SceneManagement;
 using System.Globalization;
+using dotenv.net;
+using System;
+
 public class ShopManager : MonoBehaviour
 {
     // 상점과 아이템을 가져올 API 엔드포인트
-    private string ShopListapiUrl = "http://localhost:8080/shop";
-    private string ShopItemListapiUrl = "http://localhost:8080/shop/item";
-    private string CartApiUrl = "http://localhost:8080/carts"; // 카트 API URL
+    private string ShopListapiUrl;
+    private string ShopItemListapiUrl;
+    private string CartApiUrl; // 카트 API URL
 
     // 상점 정보를 담는 클래스
     public class Shop
@@ -55,15 +58,15 @@ public class ShopManager : MonoBehaviour
     public Transform itemParent;
     public GameObject itemPrefab;
     public GameObject noItemsTextPrefab;
-     private GameObject selectedItemObject = null; // 선택된 아이템을 저장하는 변수
-     public ScrollRect itemScrollRect; // ScrollRect 컴포넌트를 참조하는 변수
+    private GameObject selectedItemObject = null; // 선택된 아이템을 저장하는 변수
+    public ScrollRect itemScrollRect; // ScrollRect 컴포넌트를 참조하는 변수
 
     private int selectedShopId;
     private int selectedCategoryId = 4; // 기본 카테고리: 가방
     private int selectedItemOptionId; // 선택된 아이템 옵션 ID 저장
     private List<ItemOption> currentOptions; // 현재 아이템의 옵션 리스트
 
-       // 선택된 버튼의 색상
+    // 선택된 버튼의 색상
     public Color selectedButtonColor = new Color(0.7f, 0.7f, 0.7f, 1.0f); // 진한 회색
     public Color defaultButtonColor = new Color(1f, 1f, 1f, 1.0f); // 기본 흰색
     public Color BolderColor = new Color(1f, 0.549f, 0f, 1f);
@@ -96,6 +99,16 @@ public class ShopManager : MonoBehaviour
     // 게임이 시작될 때 실행되는 함수
     void Start()
     {
+        // .env 파일 로드
+        DotEnv.Load();
+        
+        // 환경 변수 불러오기
+        string basicApiUrl = Environment.GetEnvironmentVariable("UNITY_APP_API_URL");
+
+        ShopListapiUrl = basicApiUrl + "/shop";
+        ShopItemListapiUrl = basicApiUrl + "/shop/item";
+        CartApiUrl = basicApiUrl + "/carts";
+
         // API에서 상점 및 모든 아이템 데이터를 초기 로드
         GetShopsAndItemsFromAPI();
         
@@ -117,14 +130,14 @@ public class ShopManager : MonoBehaviour
             characterInstance.transform.localScale = new Vector3(380, 380, 380);
 
             // handBone을 characterInstance 내 hand_l 본으로 설정
-        handBone = FindBone(characterInstance.transform, "hand_l");
-        if (handBone == null)
-        {
-            Debug.LogError("hand_l 본을 찾을 수 없습니다.");
-        }
+            handBone = FindBone(characterInstance.transform, "hand_l");
+            if (handBone == null)
+            {
+                Debug.LogError("hand_l 본을 찾을 수 없습니다.");
+            }
         }
 
-         // 드롭다운에서 선택 변경 시 이벤트 설정
+        // 드롭다운에서 선택 변경 시 이벤트 설정
         DropdownItemOption.onValueChanged.AddListener(OnOptionSelected);
 
         // 드롭다운 및 카테고리 버튼 클릭 시 이벤트 설정

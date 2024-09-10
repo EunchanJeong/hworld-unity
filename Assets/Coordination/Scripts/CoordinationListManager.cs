@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using Newtonsoft.Json;
 using System;
 using UnityEngine.SceneManagement;
+using dotenv.net;
 
 namespace Coordination {
     public class CoordinationListResponseDTO
@@ -30,10 +31,17 @@ namespace Coordination {
         public Color defaultTextColor;  // 기본 텍스트 색상
         private Button selectedButton; // 현재 선택된 버튼을 저장할 변수
 
-        private string apiUrl = "http://localhost:8080/members/my-coordinations"; 
+        private string apiUrl;
 
         private void Start()
         {
+            // .env 파일 로드
+            DotEnv.Load();
+            
+            // 환경 변수 불러오기
+            apiUrl = Environment.GetEnvironmentVariable("UNITY_APP_API_URL");
+            apiUrl += "/members/my-coordinations";
+
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;
 

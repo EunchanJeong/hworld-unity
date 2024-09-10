@@ -5,6 +5,8 @@ using UnityEngine.Networking;
 using UnityEngine.UI;
 using Newtonsoft.Json;
 using UnityEngine.SceneManagement;
+using dotenv.net;
+using System;
 
 public class PlayerSettingResponseDTO
 {
@@ -27,7 +29,7 @@ public class PlayerSettingManager : MonoBehaviour
     public static int mouseSensitivity;
     public static int sound;
     public static bool hasSavedSetting = false;
-    private static string playerSettingApiUrl = "http://localhost:8080/characters/state";
+    private static string playerSettingApiUrl;
 
     private void Start()
     {
@@ -57,12 +59,24 @@ public class PlayerSettingManager : MonoBehaviour
 
     public static IEnumerator GetPlayerSettingCoroutine(System.Action callback)
     {
+        if (playerSettingApiUrl == null) {
+            // .env 파일 로드
+            DotEnv.Load();
+            
+            // 환경 변수 불러오기
+            string basicApiUrl = Environment.GetEnvironmentVariable("UNITY_APP_API_URL");
+            Debug.Log("basicApiUrl -> " + basicApiUrl);
+
+            playerSettingApiUrl = basicApiUrl + "/characters/state";
+        }
+
         using (UnityWebRequest request = UnityWebRequest.Get(playerSettingApiUrl))
         {
             yield return request.SendWebRequest();
 
             if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
             {
+                Debug.Log(playerSettingApiUrl);
                 Debug.LogError("설정 가져오기 에러 : " + request.error);
             }
             else

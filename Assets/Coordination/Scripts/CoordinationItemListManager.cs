@@ -8,6 +8,7 @@ using System;
 using System.Text;
 using System.Globalization;
 using UnityEngine.SceneManagement;
+using dotenv.net;
 
 namespace Coordination {
     public class CoordinationItemListResponseDTO
@@ -56,10 +57,18 @@ namespace Coordination {
 
         public Color grayColor;  // 회색
 
-        private string basicApiUrl = "http://localhost:8080/coordinations/"; 
-        
+        private string apiUrl;
+        private string basicApiUrl; 
+
         void Start()
         {
+            // .env 파일 로드
+            DotEnv.Load();
+            
+            // 환경 변수 불러오기
+            apiUrl = Environment.GetEnvironmentVariable("UNITY_APP_API_URL");
+            basicApiUrl = apiUrl + "/coordinations";
+
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;
 
@@ -94,7 +103,7 @@ namespace Coordination {
         {
             ClearPreviousItems(); // 이전 아이템 제거
 
-            string apiUrl = $"{basicApiUrl}{coordinationId}";   
+            string apiUrl = $"{basicApiUrl}/{coordinationId}";   
 
             using (UnityWebRequest request = UnityWebRequest.Get(apiUrl))
             {
@@ -180,7 +189,7 @@ namespace Coordination {
 
         private IEnumerator RemoveCoordination(int coordinationId) 
         {
-            string url = $"{basicApiUrl}{coordinationId}";
+            string url = $"{basicApiUrl}/{coordinationId}";
 
             using (UnityWebRequest request = UnityWebRequest.Delete(url))
             {
@@ -222,8 +231,7 @@ namespace Coordination {
 
         private IEnumerator ApplyToCharacter(int coordinationId) 
         {
-            string apiUrl = $"{basicApiUrl}apply-coordination";
-
+            string apiUrl = $"{basicApiUrl}/apply-coordination";
             // POST할 데이터 생성
             var postDataList = new List<object>();
             foreach (var coordinationItem in coordinationItemList)
@@ -321,7 +329,7 @@ namespace Coordination {
 
         private IEnumerator RemoveCartItem(int itemOptionId) 
         {
-            string url = $"http://localhost:8080/coordinations/cart/{itemOptionId}";
+            string url = $"{basicApiUrl}/cart/{itemOptionId}";
 
             using (UnityWebRequest request = UnityWebRequest.Delete(url))
             {
@@ -363,8 +371,8 @@ namespace Coordination {
 
         private IEnumerator AddCartItem(int itemOptionId) 
         {
-            string url = "http://localhost:8080/carts";
-
+            string url = apiUrl + "/carts";
+            
             // JSON 데이터 직렬화
             CartItemOptionRequestDTO requestData = new CartItemOptionRequestDTO(itemOptionId);
             Debug.Log("requestData -> " + requestData.itemOptionId);

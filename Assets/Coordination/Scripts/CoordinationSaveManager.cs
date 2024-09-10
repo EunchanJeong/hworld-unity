@@ -2,11 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
+using System;
 using UnityEngine.Networking;
 using Newtonsoft.Json;
 using UnityEngine.UI;
 using System.Globalization;
 using UnityEngine.SceneManagement;
+using dotenv.net;
 
 public class CoordinationSaveManager : MonoBehaviour
 {
@@ -35,10 +37,18 @@ public class CoordinationSaveManager : MonoBehaviour
     public InputField titleInput;
     public List<int> itemOptionIdList;
 
-    private string apiUrl = "http://localhost:8080/characters/item"; 
+    private string basicApiUrl;
+    private string apiUrl; 
 
     void Start()
     {
+        // .env 파일 로드
+        DotEnv.Load();
+        
+        // 환경 변수 불러오기
+        basicApiUrl = Environment.GetEnvironmentVariable("UNITY_APP_API_URL");
+        apiUrl = basicApiUrl + "/characters/item";
+
         if (cameraToCapture == null)
         {
             cameraToCapture = Camera.main; // 기본적으로 메인 카메라 사용
@@ -217,7 +227,7 @@ public class CoordinationSaveManager : MonoBehaviour
 
     private IEnumerator SendCoordinationData(string title, string imageUrl, List<int> itemOptionIdList)
     {
-        string apiUrl = "http://localhost:8080/coordinations"; 
+        string apiUrl = basicApiUrl + "/coordinations"; 
 
         // POST할 데이터 생성
         var postData = new
