@@ -9,7 +9,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using UnityEngine.SceneManagement;
-
+using System.Globalization;
 public class ShopManager : MonoBehaviour
 {
     // 상점과 아이템을 가져올 API 엔드포인트
@@ -431,7 +431,8 @@ public class ShopManager : MonoBehaviour
         itemNameText.text = item.itemName;
 
         Text itemPriceText = itemObject.transform.Find("ItemPriceText").GetComponent<Text>();
-        itemPriceText.text = $"{item.itemPrice} 원";
+        string formattedPrice = item.itemPrice.ToString("N0", CultureInfo.InvariantCulture);
+        itemPriceText.text = $"{formattedPrice}원";
 
         // 아이템을 클릭하면 해당 아이템의 옵션을 드롭다운에 추가
         Button itemButton = itemObject.GetComponent<Button>();
@@ -655,7 +656,7 @@ void RemoveEquippedItem(int categoryId) // !!! 장착된 아이템을 제거하�
                 // 새로운 가방 장착
                 equippedBag = Instantiate(itemPrefab, handBone); // 손 본에 가방 장착
                 equippedBag.transform.localPosition = new Vector3(-0.0007f, 0.00192f, -0.00056f); // 주신 로컬 위치 값 적용
-                equippedBag.transform.localRotation = Quaternion.Euler(new Vector3(4.409f, -57.531f, -135.701f));; // 로컬 회전은 기본으로 설정
+                equippedBag.transform.localRotation = Quaternion.Euler(new Vector3(4.409f, -57.531f, -135.701f)); // 로컬 회전은 기본으로 설정
                 equippedBag.transform.localScale = new Vector3(0.1546509f, 0.1093701f, 0.02660948f); // 주신 로컬 스케일 값 적용
                 break;
 
