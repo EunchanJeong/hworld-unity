@@ -73,3 +73,6 @@ crashlytics-build.properties
 
 **/.DS_Store
 .vscode/*
+
+# 환경 변수 파일
+.env

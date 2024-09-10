@@ -5,6 +5,8 @@ using UnityEngine.Networking;
 using UnityEngine.UI;
 using Newtonsoft.Json;
 using UnityEngine.SceneManagement;
+using dotenv.net;
+using System;
 
 public class QuestListResponseDTO
 {
@@ -24,12 +26,21 @@ public class QuestManager : MonoBehaviour
     public GameObject questTitlePanel;
     public GameObject contentParent;
     public GameObject contentBox;
-    private string apiUrl = "http://localhost:8080/quests";
-    private string startQuestApiUrl = "http://localhost:8080/quests/start/";
-    private string finishQuestApiUrl = "http://localhost:8080/quests/finish/";
+    private string apiUrl;
+    private string startQuestApiUrl;
+    private string finishQuestApiUrl;
 
     private void Start()
     {
+        // .env 파일 로드
+        DotEnv.Load();
+        
+        // 환경 변수 불러오기
+        string basicApiUrl = Environment.GetEnvironmentVariable("UNITY_APP_API_URL");
+        apiUrl = basicApiUrl + "/quests";
+        startQuestApiUrl = basicApiUrl + "/quests/start/";
+        finishQuestApiUrl = basicApiUrl + "/quests/finish/";
+
         // 퀘스트 목록을 가져오는 메서드 호출
         GetQuestList(0);
 
@@ -39,7 +50,6 @@ public class QuestManager : MonoBehaviour
 
         // 커서 락 해제
         Cursor.lockState = CursorLockMode.None;
-
     }
 
     private void Update() {
