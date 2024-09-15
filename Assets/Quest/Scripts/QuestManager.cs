@@ -53,8 +53,8 @@ public class QuestManager : MonoBehaviour
     }
 
     private void Update() {
-        // Esc 버튼 클릭 시 나가기
-        if (Input.GetKeyDown(KeyCode.Escape))
+        // Esc 버튼이나 Q 버튼 클릭 시 나가기
+        if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.Q))
         {
             SceneManager.LoadScene("MainScene");
         }

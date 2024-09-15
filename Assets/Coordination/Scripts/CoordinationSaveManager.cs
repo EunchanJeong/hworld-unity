@@ -68,8 +68,14 @@ public class CoordinationSaveManager : MonoBehaviour
 
     void Update()
     {
-        // Esc 버튼 클릭 시 나가기
-        if (Input.GetKeyDown(KeyCode.Escape))
+        // titleInput이 포커스된 상태라면 다른 입력을 처리하지 않음
+        if (titleInput != null && titleInput.isFocused)
+        {
+            return;
+        }
+
+        // Esc 버튼이나 V 클릭 시 나가기
+        if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.V))
         {
             SceneManager.LoadScene("MainScene");
         }
