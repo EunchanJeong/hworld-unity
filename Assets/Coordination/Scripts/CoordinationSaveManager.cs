@@ -10,6 +10,14 @@ using System.Globalization;
 using UnityEngine.SceneManagement;
 using dotenv.net;
 
+
+[System.Serializable]
+public class UploadResponse
+{
+    public bool success;
+    public string message;
+}
+
 public class CoordinationSaveManager : MonoBehaviour
 {
     public class CharacterItemResponseDTO
@@ -81,7 +89,7 @@ public class CoordinationSaveManager : MonoBehaviour
         }
     }
 
-    private IEnumerator CaptureScreen()
+    private IEnumerator CaptureScreen(System.Action<Texture2D> callback)
     {
         yield return new WaitForEndOfFrame(); 
 
@@ -121,11 +129,14 @@ public class CoordinationSaveManager : MonoBehaviour
         Texture2D croppedTexture = CropTexture(screenShot, cropRect);
 
         // 이미지를 PNG 형식으로 저장
-        byte[] bytes = croppedTexture.EncodeToPNG();
-        string filePath = Path.Combine(Application.dataPath, "CapturedCharacter_Cropped.png");
-        File.WriteAllBytes(filePath, bytes);
+        // byte[] bytes = croppedTexture.EncodeToPNG();
+        // string filePath = Path.Combine(Application.dataPath, "CapturedCharacter_Cropped.png");
+        // File.WriteAllBytes(filePath, bytes);
 
-        Debug.Log("크롭된 캐릭터 이미지 저장 경로: " + filePath);
+        // Debug.Log("크롭된 캐릭터 이미지 저장 경로: " + filePath);
+
+        // 콜백을 사용해 croppedTexture 반환
+        callback?.Invoke(croppedTexture);
     }
 
     // Texture2D를 크롭하는 함수
@@ -224,47 +235,90 @@ public class CoordinationSaveManager : MonoBehaviour
 
     private void OnSaveCoordinationButtonClick()
     {
-        StartCoroutine(CaptureScreen());
+        // StartCoroutine(CaptureScreen());
 
+        // string title = titleInput.text; // 제목을 가져옵니다
+        // string imageUrl = Application.dataPath + "CapturedCharacter_Cropped.png";
+        // StartCoroutine(SendCoordinationData(title, imageUrl, itemOptionIdList));
+
+        StartCoroutine(CaptureScreen((Texture2D croppedTexture) => 
+    {
         string title = titleInput.text; // 제목을 가져옵니다
-        string imageUrl = Application.dataPath + "CapturedCharacter_Cropped.png";
-        StartCoroutine(SendCoordinationData(title, imageUrl, itemOptionIdList));
+        StartCoroutine(SendCoordinationData(title, croppedTexture, itemOptionIdList));
+    }));
     }
 
-    private IEnumerator SendCoordinationData(string title, string imageUrl, List<int> itemOptionIdList)
+    private IEnumerator SendCoordinationData(string title, Texture2D imageToSend, List<int> itemOptionIdList)
     {
-        string apiUrl = basicApiUrl + "/coordinations"; 
+        string postCoordiApiUrl = basicApiUrl + "/coordinations"; 
+        string postImageApiUrl = postCoordiApiUrl + "/image";
 
-        // POST할 데이터 생성
-        var postData = new
+
+        // Texture2D를 PNG 형식의 byte[]로 변환
+        byte[] imageData = imageToSend.EncodeToPNG();
+
+        // FormData를 준비
+        WWWForm form = new WWWForm();
+        form.AddBinaryData("file", imageData, "image.png", "image/png");
+
+        using (UnityWebRequest request = UnityWebRequest.Post(postImageApiUrl, form))
         {
-            title = title,
-            imageUrl = imageUrl,
-            itemOptionIdList = itemOptionIdList
-        };
-
-        // JSON으로 변환
-        string jsonData = JsonConvert.SerializeObject(postData);
-        byte[] jsonBytes = System.Text.Encoding.UTF8.GetBytes(jsonData);
-
-        using (UnityWebRequest request = new UnityWebRequest(apiUrl, "POST"))
-        {
-            request.uploadHandler = new UploadHandlerRaw(jsonBytes);
-            request.downloadHandler = new DownloadHandlerBuffer();
-            request.SetRequestHeader("Content-Type", "application/json");
-
-            // 요청을 보내고 기다림
+            // 요청 전송
             yield return request.SendWebRequest();
 
-            if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
+            // 요청 결과 확인
+            if (request.result == UnityWebRequest.Result.Success)
             {
-                Debug.LogError("Error: " + request.error);
+                // JSON 응답을 파싱
+                string jsonResponse = request.downloadHandler.text;
+                UploadResponse response = JsonUtility.FromJson<UploadResponse>(jsonResponse);
+                string uploadedUrl = response.message;
+
+
+                // POST할 데이터 생성
+                var postData = new
+                {
+                    title = title,
+                    imageUrl = uploadedUrl,
+                    itemOptionIdList = itemOptionIdList
+                };
+
+                // JSON으로 변환
+                string jsonData = JsonConvert.SerializeObject(postData);
+                byte[] jsonBytes = System.Text.Encoding.UTF8.GetBytes(jsonData);
+
+                using (UnityWebRequest request2 = new UnityWebRequest(postCoordiApiUrl, "POST"))
+                {
+                    request2.uploadHandler = new UploadHandlerRaw(jsonBytes);
+                    request2.downloadHandler = new DownloadHandlerBuffer();
+                    request2.SetRequestHeader("Content-Type", "application/json");
+
+                    // 요청을 보내고 기다림
+                    yield return request2.SendWebRequest();
+
+                    if (request2.result == UnityWebRequest.Result.ConnectionError || request2.result == UnityWebRequest.Result.ProtocolError)
+                    {
+                        Debug.LogError("Error: " + request2.error);
+                    }
+                    else
+                    {
+                        Debug.Log("성공적으로 데이터를 전송했습니다: " + request2.downloadHandler.text);
+                    }
+                }
+
             }
             else
             {
-                Debug.Log("성공적으로 데이터를 전송했습니다: " + request.downloadHandler.text);
+                Debug.LogError($"Upload failed: {request.error}");
             }
         }
+
+
+        
+
+        
+
+        
     }
 
 }
