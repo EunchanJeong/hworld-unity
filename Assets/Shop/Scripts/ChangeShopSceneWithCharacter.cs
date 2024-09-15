@@ -22,6 +22,10 @@ private GameObject character;
 
     void Update()
     {
+        if (SceneManager.GetActiveScene().name != "MainScene") {
+            return;
+        }
+
         if (Input.GetKeyDown(KeyCode.P))
         {
             LoadCharacterPrefab();

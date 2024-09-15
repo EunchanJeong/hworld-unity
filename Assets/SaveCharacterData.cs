@@ -22,6 +22,10 @@ public class SaveCharacterData : MonoBehaviour
 
     void Update()
     {
+        if (SceneManager.GetActiveScene().name != "MainScene") {
+            return;
+        }
+
         if (Input.GetKeyDown(KeyCode.V))
         {
             LoadCharacterPrefab();

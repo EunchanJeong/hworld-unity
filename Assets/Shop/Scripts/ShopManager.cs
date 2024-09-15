@@ -173,6 +173,16 @@ public class ShopManager : MonoBehaviour
         }
     }
 
+    public void Update()
+    {
+        // Esc 버튼이나 P 클릭 시 나가기
+        if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.P))
+        {
+            SaveEquippedItems();
+            SceneManager.LoadScene("MainScene");
+        }
+    }
+
 
     // 상점 및 상점별 카테고리별 아이템을 모두 API로부터 가져오는 함수
     public void GetShopsAndItemsFromAPI()

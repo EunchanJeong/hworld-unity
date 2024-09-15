@@ -61,8 +61,8 @@ namespace Coordination {
 
         void Update()
         {
-            // Esc 버튼 클릭 시 나가기
-            if (Input.GetKeyDown(KeyCode.Escape))
+            // Esc 버튼이나 C 클릭 시 나가기
+            if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.C))
             {
                 SceneManager.LoadScene("MainScene");
             }
