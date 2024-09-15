@@ -18,7 +18,10 @@ public class ShopManager : MonoBehaviour
     // 상점과 아이템을 가져올 API 엔드포인트
     private string ShopListapiUrl;
     private string ShopItemListapiUrl;
-    private string CartApiUrl; // 카트 API URL
+    private string CartApiUrl; // 카트 API 
+    
+    private string EquipItemUrl; // 아이템 장착 API
+    private string UnequipItemUrl; // 아이템 장착 해제 API
 
     // 상점 정보를 담는 클래스
     public class Shop
@@ -108,6 +111,8 @@ public class ShopManager : MonoBehaviour
         ShopListapiUrl = basicApiUrl + "/shop";
         ShopItemListapiUrl = basicApiUrl + "/shop/item";
         CartApiUrl = basicApiUrl + "/carts";
+        EquipItemUrl = basicApiUrl + "/characters/item";
+        UnequipItemUrl = basicApiUrl + "/characters/item/";
 
         // API에서 상점 및 모든 아이템 데이터를 초기 로드
         GetShopsAndItemsFromAPI();
@@ -490,6 +495,7 @@ public class ShopManager : MonoBehaviour
             DropdownItemOption.ClearOptions(); // 옵션 드롭다운 초기화
 
             // 선택된 카테고리에 해당하는 장착된 아이템을 제거
+            StartCoroutine(DeleteSelectedOptionToCharacterItem(selectedCategoryId));
             RemoveEquippedItem(selectedCategoryId); // !!! 아이템 선택 취소 시 장착된 아이템도 해제
             return;
         }
@@ -546,7 +552,7 @@ public class ShopManager : MonoBehaviour
         return null;
     }
 
-    // 장착된 아이템을 제거하는 함수
+// 장착된 아이템을 제거하는 함수
 void RemoveEquippedItem(int categoryId) // !!! 장착된 아이템을 제거하는 함수 추가
 {
     switch (categoryId)
@@ -664,13 +670,17 @@ void RemoveEquippedItem(int categoryId) // !!! 장착된 아이템을 제거하�
                 {
                     Debug.Log("기존 가방 삭제");
                     Destroy(existingBag.gameObject);
+                    StartCoroutine(DeleteSelectedOptionToCharacterItem(selectedCategoryId));
                 }
 
                 // 새로운 가방 장착
+                StartCoroutine(PostSelectedOptionToCharacterItem(selectedItemOptionId));
                 equippedBag = Instantiate(itemPrefab, handBone); // 손 본에 가방 장착
                 equippedBag.transform.localPosition = new Vector3(-0.0007f, 0.00192f, -0.00056f); // 주신 로컬 위치 값 적용
                 equippedBag.transform.localRotation = Quaternion.Euler(new Vector3(4.409f, -57.531f, -135.701f)); // 로컬 회전은 기본으로 설정
                 equippedBag.transform.localScale = new Vector3(0.1546509f, 0.1093701f, 0.02660948f); // 주신 로컬 스케일 값 적용
+
+
                 break;
 
             default:
@@ -706,7 +716,7 @@ void RemoveEquippedItem(int categoryId) // !!! 장착된 아이템을 제거하�
         {
             selectedItemOptionId = currentOptions[index].itemOptionId; // 선택된 옵션 ID 저장
 
-             selectedItemOptionId = currentOptions[index].itemOptionId;  // !!! 수정: itemOptionId 사용
+            selectedItemOptionId = currentOptions[index].itemOptionId;  // !!! 수정: itemOptionId 사용
             EquipItemOnCharacter(selectedItemOptionId); // !!! 카테고리 ID로 장착 처리
         }
     }
@@ -722,6 +732,72 @@ void RemoveEquippedItem(int categoryId) // !!! 장착된 아이템을 제거하�
         else
         {
             Debug.LogError("옵션이 선택되지 않았습니다."); // 선택된 옵션이 없을 때 에러 출력
+        }
+    }
+
+    // 선택된 옵션을 POST로 전송하는 코루틴
+    IEnumerator PostSelectedOptionToCharacterItem(int itemOptionId)
+    {
+
+        Debug.Log("아이템 장착 POST 호출");
+        Dictionary <string, int> postData = new Dictionary<string, int>
+        {
+            {"itemOptionId", itemOptionId }
+        };
+
+        string jsonData = JsonConvert.SerializeObject(postData);
+
+        // 바디에 JSON 데이터를 포함한 POST 요청 생성
+        using (UnityWebRequest request = new UnityWebRequest(EquipItemUrl, "POST"))
+        {
+            // 요청에 헤더 설정 (JSON 전송을 위한 Content-Type)
+            request.SetRequestHeader("Content-Type", "application/json");
+
+            // JSON 데이터를 바디에 포함
+            byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonData);
+            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+            request.downloadHandler = new DownloadHandlerBuffer();
+
+            // 요청 전송
+            yield return request.SendWebRequest();
+
+            // 응답 확인
+            if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
+            {
+                Debug.LogError("POST 요청 실패: " + request.error);
+            }
+            else
+            {
+                Debug.Log("POST 요청 성공: " + request.downloadHandler.text);
+            }
+        }
+    }
+
+    IEnumerator DeleteSelectedOptionToCharacterItem(int categoryId)
+    {
+        // DELETE 요청을 위한 URL 생성
+        string deleteUrl = UnequipItemUrl + categoryId.ToString();
+        
+        // DELETE 요청 생성
+        using (UnityWebRequest request = UnityWebRequest.Delete(deleteUrl))
+        {
+            // 응답을 받기 위한 downloadHandler 설정
+            request.downloadHandler = new DownloadHandlerBuffer();
+
+            // 요청 전송
+            yield return request.SendWebRequest();
+
+            // 응답 확인
+            if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
+            {
+                // 오류 발생 시
+                Debug.LogError("DELETE 요청 실패: " + request.error);
+            }
+            else
+            {
+                // 성공 시
+                Debug.Log("DELETE 요청 성공: " + request.downloadHandler.text);
+            }
         }
     }
 
