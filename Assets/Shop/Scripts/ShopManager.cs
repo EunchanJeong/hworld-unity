@@ -637,6 +637,7 @@ void RemoveEquippedItem(int categoryId) // !!! 장착된 아이템을 제거하�
         // itemOptionId에 해당하는 FBX 파일을 경로에서 로드 (형식: "categoryName_itemOptionId.fbx")
         string fbxFileName = $"{categoryName}_{itemOptionId}.fbx";
         string fbxFilePath = $"{fbxPath}{fbxFileName}";
+        
         GameObject itemPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(fbxFilePath);
 
         if (itemPrefab == null)
