@@ -42,6 +42,9 @@ public class CharacterSelectionManager : MonoBehaviour
     public Text popupMessage; // 팝업창에 표시할 메시지
     public Button popupConfirmButton; // 팝업창 확인 버튼
 
+    private static string authToken;
+    private static string refreshToken;
+
     void Start()
     {
         // 환경 변수에서 API URL 가져오기
@@ -86,6 +89,20 @@ public class CharacterSelectionManager : MonoBehaviour
                 OnCharacterSelected(clickedCharacter); // 캐릭터 선택
             }
         }
+    }
+
+    // 공통 헤더 설정 메서드
+    private static UnityWebRequest SetHeaders(UnityWebRequest request)
+    {
+        // PlayerPrefs에서 저장된 토큰 불러오기
+        authToken = PlayerPrefs.GetString("authToken", null);
+        refreshToken = PlayerPrefs.GetString("refreshToken", null);
+        if (!string.IsNullOrEmpty(authToken) && !string.IsNullOrEmpty(refreshToken))
+        {
+            request.SetRequestHeader("auth", authToken);
+            request.SetRequestHeader("refresh", refreshToken);
+        }
+        return request;
     }
 
     // 카테고리(옷 종류) 버튼 클릭 시 호출
@@ -275,6 +292,7 @@ public class CharacterSelectionManager : MonoBehaviour
 
         using (UnityWebRequest request = UnityWebRequest.PostWwwForm(AddCharacterApiUrl, jsonData))
         {
+            SetHeaders(request);
             request.SetRequestHeader("Content-Type", "application/json");
             byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonData);
             request.uploadHandler = new UploadHandlerRaw(bodyRaw);
