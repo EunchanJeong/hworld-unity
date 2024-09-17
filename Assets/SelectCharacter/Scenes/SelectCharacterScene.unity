@@ -810,7 +810,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1594067531}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ada0a8c4f8491014a8139d0802d00d88, type: 3}
+  m_Script: {fileID: 11500000, guid: bd783087d913c40699668253371a0950, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   characterSpawnPoints:
@@ -837,7 +837,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1594067531}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e1b8d1daf2a15414c9928479b9a7b948, type: 3}
+  m_Script: {fileID: 11500000, guid: 19adf60b9d9e9f9408149ffd10872231, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1677115690
