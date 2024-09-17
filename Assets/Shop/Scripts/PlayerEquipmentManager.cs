@@ -1,6 +1,6 @@
-#if UNITY_EDITOR // 이 코드 블록은 에디터에서만 실행되도록 설정
-using UnityEditor; // AssetDatabase를 사용하기 위해 필요한 네임스페이스
-#endif
+// #if UNITY_EDITOR // 이 코드 블록은 에디터에서만 실행되도록 설정
+// using UnityEditor; // AssetDatabase를 사용하기 위해 필요한 네임스페이스
+// #endif
 
 using UnityEngine;
 
@@ -68,20 +68,20 @@ public class PlayerEquipmentManager : MonoBehaviour
     // 장착 아이템을 캐릭터에 부착하는 함수
     void EquipItemOnCharacter(int itemOptionId, int categoryId)
     {
-        #if UNITY_EDITOR
-        // 에디터에서만 AssetDatabase를 사용하여 프리팹을 로드
-        string categoryName = GetCategoryNameById(categoryId);
-        string fbxFileName = $"{categoryName}_{itemOptionId}.fbx";
-        string fbxFilePath = $"{fbxPath}{fbxFileName}";
+        // #if UNITY_EDITOR
+        // // 에디터에서만 AssetDatabase를 사용하여 프리팹을 로드
+        // string categoryName = GetCategoryNameById(categoryId);
+        // string fbxFileName = $"{categoryName}_{itemOptionId}.fbx";
+        // string fbxFilePath = $"{fbxPath}{fbxFileName}";
 
-        GameObject itemPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(fbxFilePath);
+        // GameObject itemPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(fbxFilePath);
 
-        if (itemPrefab == null)
-        {
-            Debug.LogError($"FBX 파일을 찾을 수 없습니다: {fbxFilePath}");
-            return;
-        }
-        #else
+        // if (itemPrefab == null)
+        // {
+        //     Debug.LogError($"FBX 파일을 찾을 수 없습니다: {fbxFilePath}");
+        //     return;
+        // }
+        // #else
         // 런타임에서는 Resources.Load를 사용하여 프리팹을 로드
         string categoryName = GetCategoryNameById(categoryId);
         string prefabPath = $"Items/{categoryName}_{itemOptionId}"; // Resources 폴더 내 경로
@@ -92,7 +92,7 @@ public class PlayerEquipmentManager : MonoBehaviour
             Debug.LogError($"프리팹을 찾을 수 없습니다: {prefabPath}");
             return;
         }
-        #endif
+        // #endif
 
         // 장착 로직
         switch (categoryId)

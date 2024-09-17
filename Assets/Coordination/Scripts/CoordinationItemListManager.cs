@@ -11,6 +11,7 @@ using UnityEngine.SceneManagement;
 using dotenv.net;
 
 namespace Coordination {
+ 
     public class CoordinationItemListResponseDTO
     {
         public int categoryId {get; set;}
@@ -59,19 +60,18 @@ namespace Coordination {
 
         private string apiUrl;
         private string basicApiUrl; 
-
         private static string authToken;
         private static string refreshToken;
 
         void Start()
         {
             // .env 파일 로드
-            DotEnv.Load();
+            // DotEnv.Load();
             
-            // 환경 변수 불러오기
-            apiUrl = Environment.GetEnvironmentVariable("UNITY_APP_API_URL");
-            basicApiUrl = apiUrl + "/coordinations";
-
+            // // 환경 변수 불러오기
+            // apiUrl = Environment.GetEnvironmentVariable("UNITY_APP_API_URL");
+            // basicApiUrl = apiUrl + "/coordinations";
+            string basicApiUrl = ServerConfig.hostUrl;
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;
 

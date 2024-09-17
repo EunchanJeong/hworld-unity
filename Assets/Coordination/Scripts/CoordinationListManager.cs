@@ -35,14 +35,17 @@ namespace Coordination {
 
         private static string authToken;
         private static string refreshToken;
+        // public ServerConfig serverConfig;
 
         private void Start()
         {
             // .env 파일 로드
-            DotEnv.Load();
+            // DotEnv.Load();
             
+
             // 환경 변수 불러오기
-            apiUrl = Environment.GetEnvironmentVariable("UNITY_APP_API_URL");
+            // apiUrl = Environment.GetEnvironmentVariable("UNITY_APP_API_URL");
+            apiUrl = ServerConfig.hostUrl;
             apiUrl += "/members/my-coordinations";
 
             Cursor.visible = true;
