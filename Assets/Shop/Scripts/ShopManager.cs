@@ -1,7 +1,3 @@
-// #if UNITY_EDITOR // 이 코드 블록은 에디터에서만 실행되도록 설정
-// using UnityEditor; // AssetDatabase를 사용하기 위해 필요한 네임스페이스
-// #endif
-
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
@@ -633,7 +629,7 @@ void RemoveEquippedItem(int categoryId) // !!! 장착된 아이템을 제거하�
     // FBX 파일을 로드하고 캐릭터에 장착하는 함수
     void EquipItemOnCharacter(int itemOptionId)
     {
-        #if UNITY_EDITOR
+    
         // 카테고리 이름 결정
         string categoryName = GetCategoryNameById(selectedCategoryId);
 
@@ -705,7 +701,7 @@ void RemoveEquippedItem(int categoryId) // !!! 장착된 아이템을 제거하�
                 Debug.LogError("잘못된 카테고리 ID입니다.");
                 break;
         }
-        #endif
+  
     }
 
     // 장착한 아이템을 저장하는 함수
