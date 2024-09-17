@@ -31,6 +31,9 @@ public class PlayerSettingManager : MonoBehaviour
     public static bool hasSavedSetting = false;
     private static string playerSettingApiUrl;
 
+    private static string authToken;
+    private static string refreshToken;
+
     private void Start()
     {
         moveBar();
@@ -57,6 +60,24 @@ public class PlayerSettingManager : MonoBehaviour
         caller.StartCoroutine(GetPlayerSettingCoroutine(callback));
     }
 
+    // 공통 헤더 설정 메서드
+    private static UnityWebRequest SetHeaders(UnityWebRequest request)
+    {
+        // PlayerPrefs에서 저장된 토큰 불러오기
+        authToken = PlayerPrefs.GetString("authToken", null);
+        refreshToken = PlayerPrefs.GetString("refreshToken", null);
+
+        if (!string.IsNullOrEmpty(authToken) && !string.IsNullOrEmpty(refreshToken))
+        {
+            request.SetRequestHeader("auth", authToken);
+            request.SetRequestHeader("refresh", refreshToken);
+        } else {
+            request.SetRequestHeader("auth", "");
+            request.SetRequestHeader("refresh", "");
+        }
+        return request;
+    }
+
     public static IEnumerator GetPlayerSettingCoroutine(System.Action callback)
     {
         if (playerSettingApiUrl == null) {
@@ -72,6 +93,8 @@ public class PlayerSettingManager : MonoBehaviour
 
         using (UnityWebRequest request = UnityWebRequest.Get(playerSettingApiUrl))
         {
+            SetHeaders(request);
+
             yield return request.SendWebRequest();
 
             if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
@@ -154,6 +177,8 @@ public class PlayerSettingManager : MonoBehaviour
         using (UnityWebRequest request = UnityWebRequest.Put(playerSettingApiUrl, requestBody))
         {
             request.SetRequestHeader("Content-Type", "application/json");
+            SetHeaders(request);
+
             yield return request.SendWebRequest();
 
             if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)

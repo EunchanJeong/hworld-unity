@@ -33,6 +33,9 @@ namespace Coordination {
 
         private string apiUrl;
 
+        private static string authToken;
+        private static string refreshToken;
+
         private void Start()
         {
             // .env 파일 로드
@@ -68,6 +71,20 @@ namespace Coordination {
             }
         }
 
+        // 공통 헤더 설정 메서드
+        private static UnityWebRequest SetHeaders(UnityWebRequest request)
+        {
+            // PlayerPrefs에서 저장된 토큰 불러오기
+            authToken = PlayerPrefs.GetString("authToken", null);
+            refreshToken = PlayerPrefs.GetString("refreshToken", null);
+
+            if (!string.IsNullOrEmpty(authToken) && !string.IsNullOrEmpty(refreshToken))
+            {
+                request.SetRequestHeader("auth", authToken);
+                request.SetRequestHeader("refresh", refreshToken);
+            }
+            return request;
+        }
 
         // 코디 목록을 가져오는 메서드
         public void GetMemberCoordination()
@@ -80,6 +97,8 @@ namespace Coordination {
         {
             using (UnityWebRequest request = UnityWebRequest.Get(apiUrl))
             {
+                SetHeaders(request);
+                
                 // 요청을 보내고 기다림
                 yield return request.SendWebRequest();
 

@@ -5,6 +5,7 @@ using dotenv.net;
 using System;
 using Newtonsoft.Json;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class LoginManager : MonoBehaviour
 {
@@ -14,6 +15,9 @@ public class LoginManager : MonoBehaviour
 
     public InputField IDInput;
     public InputField PWInput;
+
+    private static string authToken;
+    private static string refreshToken;
 
     void Start()
     {
@@ -57,9 +61,14 @@ public class LoginManager : MonoBehaviour
 
         using (UnityWebRequest request = new UnityWebRequest(basicApiUrl, "POST"))
         {
+            PlayerPrefs.DeleteKey("authToken");
+            PlayerPrefs.DeleteKey("refreshToken");
+
             request.uploadHandler = new UploadHandlerRaw(jsonBytes);
             request.downloadHandler = new DownloadHandlerBuffer();
             request.SetRequestHeader("Content-Type", "application/json");
+
+            Debug.Log("Sending request...");
 
             yield return request.SendWebRequest();
 
@@ -69,8 +78,11 @@ public class LoginManager : MonoBehaviour
             }
             else
             {
-                string authToken = request.GetResponseHeader("auth");
-                string refreshToken = request.GetResponseHeader("refresh");
+                authToken = request.GetResponseHeader("auth");
+                refreshToken = request.GetResponseHeader("refresh");
+
+                Debug.Log("authToken -> " + authToken);
+                Debug.Log("refreshToken -> " + refreshToken);
 
                 if (!string.IsNullOrEmpty(authToken))
                 {
@@ -80,6 +92,8 @@ public class LoginManager : MonoBehaviour
                     Debug.Log("로그인 성공");
                     Debug.Log("authToken -> " + authToken);
                     Debug.Log("refreshToken -> " + refreshToken);
+
+                    SceneManager.LoadScene("MainScene");
                 }
                 else
                 {
