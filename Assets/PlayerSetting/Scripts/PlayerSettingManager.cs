@@ -8,6 +8,11 @@ using UnityEngine.SceneManagement;
 using dotenv.net;
 using System;
 
+using System;
+using System.IO;
+
+
+
 public class PlayerSettingResponseDTO
 {
     public int speed { get; set; }
@@ -25,6 +30,7 @@ public class PlayerSettingDTO
 
 public class PlayerSettingManager : MonoBehaviour
 {
+    public ServerConfig serverConfig;
     public static int speed;
     public static int mouseSensitivity;
     public static int sound;
@@ -60,12 +66,20 @@ public class PlayerSettingManager : MonoBehaviour
     public static IEnumerator GetPlayerSettingCoroutine(System.Action callback)
     {
         if (playerSettingApiUrl == null) {
-            // .env 파일 로드
-            DotEnv.Load();
+            // // .env 파일 로드
+            // DotEnv.Load();
             
-            // 환경 변수 불러오기
-            string basicApiUrl = Environment.GetEnvironmentVariable("UNITY_APP_API_URL");
-            Debug.Log("basicApiUrl -> " + basicApiUrl);
+     
+        // // 환경 변수 확인
+        // string apiUrl = Environment.GetEnvironmentVariable("UNITY_APP_API_URL");
+        // Debug.Log("Loaded API URL: " + apiUrl);
+
+        //     // 환경 변수 불러오기
+        //     string basicApiUrl = Environment.GetEnvironmentVariable("UNITY_APP_API_URL");
+        //     Debug.Log("basicApiUrl -> " + basicApiUrl);
+
+        //     basicApiUrl = "http://localhost:8080"; 
+            string basicApiUrl = ServerConfig.hostUrl;
 
             playerSettingApiUrl = basicApiUrl + "/characters/state";
         }

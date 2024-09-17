@@ -1,7 +1,3 @@
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
-
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Networking;
@@ -12,6 +8,7 @@ using System;
 
 public class CharacterSelectionManager : MonoBehaviour
 {
+
     // 캐릭터들이 배치될 위치 배열
     public Transform[] characterSpawnPoints;
     private GameObject[] currentCharacters = new GameObject[4]; // 현재 배치된 캐릭터들
@@ -29,7 +26,7 @@ public class CharacterSelectionManager : MonoBehaviour
     public Color selectedButtonColor = new Color(0.7f, 0.7f, 0.7f); // 선택된 버튼에 사용할 회색 색상
 
     // 캐릭터 FBX 파일들이 저장된 기본 경로
-    private string baseCharacterPath = "Assets/SelectCharacter/Assets/Characters/";
+    private string baseCharacterPath = "Characters/";
 
     // 현재 선택된 카테고리(예: casual1, suit)
     private string currentCategory = "casual1";
@@ -48,8 +45,10 @@ public class CharacterSelectionManager : MonoBehaviour
     void Start()
     {
         // 환경 변수에서 API URL 가져오기
-        DotEnv.Load();
-        string basicApiUrl = Environment.GetEnvironmentVariable("UNITY_APP_API_URL");
+        // DotEnv.Load();
+        // string basicApiUrl = Environment.GetEnvironmentVariable("UNITY_APP_API_URL");
+
+        string basicApiUrl = ServerConfig.hostUrl;
         AddCharacterApiUrl = basicApiUrl + "/characters";
 
         // 옷 변경 버튼에 클릭 이벤트 등록
@@ -170,8 +169,7 @@ public class CharacterSelectionManager : MonoBehaviour
         }
 
         // 새로운 캐릭터 로드 및 배치
-        path = path + ".fbx";
-        GameObject characterPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+        GameObject characterPrefab = Resources.Load<GameObject>(path);
         if (characterPrefab != null)
         {
             currentCharacters[index] = Instantiate(characterPrefab, characterSpawnPoints[index].position, characterSpawnPoints[index].rotation);

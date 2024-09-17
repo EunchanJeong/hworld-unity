@@ -1,6 +1,6 @@
-#if UNITY_EDITOR // 이 코드 블록은 에디터에서만 실행되도록 설정
-using UnityEditor; // AssetDatabase를 사용하기 위해 필요한 네임스페이스
-#endif
+// #if UNITY_EDITOR // 이 코드 블록은 에디터에서만 실행되도록 설정
+// using UnityEditor; // AssetDatabase를 사용하기 위해 필요한 네임스페이스
+// #endif
 
 using UnityEngine;
 using UnityEngine.Networking;
@@ -95,19 +95,22 @@ public class ShopManager : MonoBehaviour
     private GameObject equippedBag;     // 장착된 가방
 
      // FBX 파일이 저장된 경로 (Assets/Shop/Items)
-    private string fbxPath = "Assets/Shop/Items/";
+    // private string fbxPath = "Assets/Shop/Items/";
+    private string fbxPath = "Items/";
+
+    
 
     private GameObject characterInstance; // 캐릭터 인스턴스
 
     // 게임이 시작될 때 실행되는 함수
     void Start()
     {
-        // .env 파일 로드
-        DotEnv.Load();
+        // // .env 파일 로드
+        // DotEnv.Load();
         
-        // 환경 변수 불러오기
-        string basicApiUrl = Environment.GetEnvironmentVariable("UNITY_APP_API_URL");
-
+        // // 환경 변수 불러오기
+        // string basicApiUrl = Environment.GetEnvironmentVariable("UNITY_APP_API_URL");
+          string basicApiUrl = ServerConfig.hostUrl;
         ShopListapiUrl = basicApiUrl + "/shop";
         ShopItemListapiUrl = basicApiUrl + "/shop/item";
         CartApiUrl = basicApiUrl + "/carts";
@@ -635,10 +638,14 @@ void RemoveEquippedItem(int categoryId) // !!! 장착된 아이템을 제거하�
         string categoryName = GetCategoryNameById(selectedCategoryId);
 
         // itemOptionId에 해당하는 FBX 파일을 경로에서 로드 (형식: "categoryName_itemOptionId.fbx")
-        string fbxFileName = $"{categoryName}_{itemOptionId}.fbx";
+        // string fbxFileName = $"{categoryName}_{itemOptionId}.fbx";
+        // string fbxFilePath = $"{fbxPath}{fbxFileName}";
+
+          // itemOptionId에 해당하는 FBX 파일을 경로에서 로드 (형식: "categoryName_itemOptionId")
+        string fbxFileName = $"{categoryName}_{itemOptionId}";
         string fbxFilePath = $"{fbxPath}{fbxFileName}";
         
-        GameObject itemPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(fbxFilePath);
+        GameObject itemPrefab = Resources.Load<GameObject>(fbxFilePath);
 
         if (itemPrefab == null)
         {
