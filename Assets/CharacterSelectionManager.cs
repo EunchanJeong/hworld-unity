@@ -307,7 +307,7 @@ public class CharacterSelectionManager : MonoBehaviour
     private void OnConfirmButtonClicked()
     {
         popupPanel.SetActive(false); // 팝업창 비활성화
-        SceneManager.LoadScene("NextScene"); // 새로운 씬으로 전환
+        SceneManager.LoadScene("MainScene"); // 새로운 씬으로 전환
     }
 
     // 캐릭터의 텍스트에 테두리 추가 함수
