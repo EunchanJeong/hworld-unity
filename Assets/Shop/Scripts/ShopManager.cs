@@ -187,7 +187,7 @@ public class ShopManager : MonoBehaviour
     // 상점 및 상점별 카테고리별 아이템을 모두 API로부터 가져오는 함수
     public void GetShopsAndItemsFromAPI()
     {
-        SaveEquippedItems(); // !!! MainScene으로 이동하기 전 장착 아이템 상태를 저장
+        SaveEquippedItems(); // MainScene으로 이동하기 전 장착 아이템 상태를 저장
         StartCoroutine(GetShopsAndItems());
     }
 
