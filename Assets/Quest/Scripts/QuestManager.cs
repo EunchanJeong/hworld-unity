@@ -33,10 +33,11 @@ public class QuestManager : MonoBehaviour
     private void Start()
     {
         // .env 파일 로드
-        DotEnv.Load();
+        // DotEnv.Load();
         
         // 환경 변수 불러오기
-        string basicApiUrl = Environment.GetEnvironmentVariable("UNITY_APP_API_URL");
+        // string basicApiUrl = Environment.GetEnvironmentVariable("UNITY_APP_API_URL");
+        string basicApiUrl = ServerConfig.hostUrl;
         apiUrl = basicApiUrl + "/quests";
         startQuestApiUrl = basicApiUrl + "/quests/start/";
         finishQuestApiUrl = basicApiUrl + "/quests/finish/";

@@ -51,10 +51,11 @@ public class CoordinationSaveManager : MonoBehaviour
     void Start()
     {
         // .env 파일 로드
-        DotEnv.Load();
+        // DotEnv.Load();
         
         // 환경 변수 불러오기
-        basicApiUrl = Environment.GetEnvironmentVariable("UNITY_APP_API_URL");
+        // basicApiUrl = Environment.GetEnvironmentVariable("UNITY_APP_API_URL");
+        basicApiUrl = ServerConfig.hostUrl;
         apiUrl = basicApiUrl + "/characters/item";
 
         if (cameraToCapture == null)
