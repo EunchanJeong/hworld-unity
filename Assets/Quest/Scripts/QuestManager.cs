@@ -30,6 +30,10 @@ public class QuestManager : MonoBehaviour
     private string startQuestApiUrl;
     private string finishQuestApiUrl;
 
+
+    private static string authToken;
+    private static string refreshToken;
+
     private void Start()
     {
         // .env 파일 로드
@@ -61,6 +65,22 @@ public class QuestManager : MonoBehaviour
         }
     }
 
+    // 공통 헤더 설정 메서드
+    private static UnityWebRequest SetHeaders(UnityWebRequest request)
+    {
+        // PlayerPrefs에서 저장된 토큰 불러오기
+        authToken = PlayerPrefs.GetString("authToken", null);
+        refreshToken = PlayerPrefs.GetString("refreshToken", null);
+
+        if (!string.IsNullOrEmpty(authToken) && !string.IsNullOrEmpty(refreshToken))
+        {
+            request.SetRequestHeader("auth", authToken);
+            request.SetRequestHeader("refresh", refreshToken);
+        }
+        return request;
+    }
+
+
     public void GetQuestList(int currentQuestId)
     {
         StartCoroutine(GetQuestListCoroutine(currentQuestId));
@@ -70,6 +90,8 @@ public class QuestManager : MonoBehaviour
     {
         using (UnityWebRequest request = UnityWebRequest.Get(apiUrl))
         {
+            SetHeaders(request);
+
             yield return request.SendWebRequest();
 
             if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
@@ -184,6 +206,8 @@ public class QuestManager : MonoBehaviour
     {
         using (UnityWebRequest request = UnityWebRequest.PostWwwForm(startQuestApiUrl + questId, ""))
         {
+            SetHeaders(request);
+
             yield return request.SendWebRequest();
 
             if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
@@ -207,6 +231,8 @@ public class QuestManager : MonoBehaviour
     {
         using (UnityWebRequest request = UnityWebRequest.Put(finishQuestApiUrl + questId, ""))
         {
+            SetHeaders(request);
+            
             yield return request.SendWebRequest();
 
             if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)

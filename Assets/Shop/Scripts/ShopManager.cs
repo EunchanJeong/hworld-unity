@@ -98,6 +98,9 @@ public class ShopManager : MonoBehaviour
 
     private GameObject characterInstance; // 캐릭터 인스턴스
 
+    private static string authToken;
+    private static string refreshToken;
+
     // 게임이 시작될 때 실행되는 함수
     void Start()
     {
@@ -182,6 +185,20 @@ public class ShopManager : MonoBehaviour
         }
     }
 
+    // 공통 헤더 설정 메서드
+    private static UnityWebRequest SetHeaders(UnityWebRequest request)
+    {
+        // PlayerPrefs에서 저장된 토큰 불러오기
+        authToken = PlayerPrefs.GetString("authToken", null);
+        refreshToken = PlayerPrefs.GetString("refreshToken", null);
+
+        if (!string.IsNullOrEmpty(authToken) && !string.IsNullOrEmpty(refreshToken))
+        {
+            request.SetRequestHeader("auth", authToken);
+            request.SetRequestHeader("refresh", refreshToken);
+        }
+        return request;
+    }
 
     // 상점 및 상점별 카테고리별 아이템을 모두 API로부터 가져오는 함수
     public void GetShopsAndItemsFromAPI()
@@ -195,6 +212,8 @@ public class ShopManager : MonoBehaviour
     {
         using (UnityWebRequest shopRequest = UnityWebRequest.Get(ShopListapiUrl))
         {
+            SetHeaders(shopRequest);
+
             yield return shopRequest.SendWebRequest();
 
             if (shopRequest.result == UnityWebRequest.Result.ConnectionError || shopRequest.result == UnityWebRequest.Result.ProtocolError)
@@ -218,6 +237,8 @@ public class ShopManager : MonoBehaviour
                         string apiUrl = $"{ShopItemListapiUrl}?shopId={shop.shopId}&categoryId={categoryId}";
                         using (UnityWebRequest itemRequest = UnityWebRequest.Get(apiUrl))
                         {
+                            SetHeaders(itemRequest);
+
                             yield return itemRequest.SendWebRequest();
 
                             if (itemRequest.result == UnityWebRequest.Result.ConnectionError || itemRequest.result == UnityWebRequest.Result.ProtocolError)
@@ -279,6 +300,8 @@ public class ShopManager : MonoBehaviour
     {
         using (UnityWebRequest request = UnityWebRequestTexture.GetTexture(imageUrl))
         {
+            SetHeaders(request);
+
             yield return request.SendWebRequest();
 
             if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
@@ -764,6 +787,8 @@ void RemoveEquippedItem(int categoryId) // !!! 장착된 아이템을 제거하�
         // 바디에 JSON 데이터를 포함한 POST 요청 생성
         using (UnityWebRequest request = new UnityWebRequest(EquipItemUrl, "POST"))
         {
+            SetHeaders(request);
+
             // 요청에 헤더 설정 (JSON 전송을 위한 Content-Type)
             request.SetRequestHeader("Content-Type", "application/json");
 
@@ -795,6 +820,8 @@ void RemoveEquippedItem(int categoryId) // !!! 장착된 아이템을 제거하�
         // DELETE 요청 생성
         using (UnityWebRequest request = UnityWebRequest.Delete(deleteUrl))
         {
+            SetHeaders(request);
+
             // 응답을 받기 위한 downloadHandler 설정
             request.downloadHandler = new DownloadHandlerBuffer();
 
@@ -830,6 +857,8 @@ void RemoveEquippedItem(int categoryId) // !!! 장착된 아이템을 제거하�
         // 바디에 JSON 데이터를 포함한 POST 요청 생성
         using (UnityWebRequest request = new UnityWebRequest(CartApiUrl, "POST"))
         {
+            SetHeaders(request);
+
             // 요청에 헤더 설정 (JSON 전송을 위한 Content-Type)
             request.SetRequestHeader("Content-Type", "application/json");
 
@@ -887,6 +916,8 @@ void RemoveEquippedItem(int categoryId) // !!! 장착된 아이템을 제거하�
     {
         using (UnityWebRequest request = UnityWebRequestTexture.GetTexture(imageUrl))
         {
+            SetHeaders(request);
+            
             yield return request.SendWebRequest();
 
             if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)

@@ -48,6 +48,9 @@ public class CoordinationSaveManager : MonoBehaviour
     private string basicApiUrl;
     private string apiUrl; 
 
+    private static string authToken;
+    private static string refreshToken;
+
     void Start()
     {
         // .env 파일 로드
@@ -88,6 +91,21 @@ public class CoordinationSaveManager : MonoBehaviour
         {
             SceneManager.LoadScene("MainScene");
         }
+    }
+
+    // 공통 헤더 설정 메서드
+    private static UnityWebRequest SetHeaders(UnityWebRequest request)
+    {
+        // PlayerPrefs에서 저장된 토큰 불러오기
+        authToken = PlayerPrefs.GetString("authToken", null);
+        refreshToken = PlayerPrefs.GetString("refreshToken", null);
+
+        if (!string.IsNullOrEmpty(authToken) && !string.IsNullOrEmpty(refreshToken))
+        {
+            request.SetRequestHeader("auth", authToken);
+            request.SetRequestHeader("refresh", refreshToken);
+        }
+        return request;
     }
 
     private IEnumerator CaptureScreen(System.Action<Texture2D> callback)
@@ -167,6 +185,8 @@ public class CoordinationSaveManager : MonoBehaviour
     {
         using (UnityWebRequest request = UnityWebRequest.Get(apiUrl))
         {
+            SetHeaders(request);
+
             // 요청을 보내고 기다림
             yield return request.SendWebRequest();
 
@@ -264,6 +284,8 @@ public class CoordinationSaveManager : MonoBehaviour
 
         using (UnityWebRequest request = UnityWebRequest.Post(postImageApiUrl, form))
         {
+            SetHeaders(request);
+
             // 요청 전송
             yield return request.SendWebRequest();
 
@@ -290,6 +312,7 @@ public class CoordinationSaveManager : MonoBehaviour
 
                 using (UnityWebRequest request2 = new UnityWebRequest(postCoordiApiUrl, "POST"))
                 {
+                    SetHeaders(request2);
                     request2.uploadHandler = new UploadHandlerRaw(jsonBytes);
                     request2.downloadHandler = new DownloadHandlerBuffer();
                     request2.SetRequestHeader("Content-Type", "application/json");
@@ -313,12 +336,6 @@ public class CoordinationSaveManager : MonoBehaviour
                 Debug.LogError($"Upload failed: {request.error}");
             }
         }
-
-
-        
-
-        
-
         
     }
 

@@ -60,6 +60,9 @@ namespace Coordination {
 
         private string apiUrl;
         private string basicApiUrl; 
+        private static string authToken;
+        private static string refreshToken;
+
         void Start()
         {
             // .env 파일 로드
@@ -77,6 +80,21 @@ namespace Coordination {
 
             coordinationListManager = FindObjectOfType<CoordinationListManager>();
             coordinationListManager.OnCoordinationIdChanged += HandleCoordinationIdChanged;
+        }
+
+        // 공통 헤더 설정 메서드
+        private static UnityWebRequest SetHeaders(UnityWebRequest request)
+        {
+            // PlayerPrefs에서 저장된 토큰 불러오기
+            authToken = PlayerPrefs.GetString("authToken", null);
+            refreshToken = PlayerPrefs.GetString("refreshToken", null);
+
+            if (!string.IsNullOrEmpty(authToken) && !string.IsNullOrEmpty(refreshToken))
+            {
+                request.SetRequestHeader("auth", authToken);
+                request.SetRequestHeader("refresh", refreshToken);
+            }
+            return request;
         }
 
         private void HandleCoordinationIdChanged(int newCoordinationId)
@@ -107,6 +125,8 @@ namespace Coordination {
 
             using (UnityWebRequest request = UnityWebRequest.Get(apiUrl))
             {
+                SetHeaders(request);
+
                 yield return request.SendWebRequest(); // 요청 보내고 대기
 
                 if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
@@ -193,6 +213,8 @@ namespace Coordination {
 
             using (UnityWebRequest request = UnityWebRequest.Delete(url))
             {
+                SetHeaders(request);
+
                 Debug.Log("삭제 요청 받음 -> " + coordinationId);
                 request.SetRequestHeader("Content-Type", "application/json");
 
@@ -252,6 +274,7 @@ namespace Coordination {
 
             using (UnityWebRequest request = new UnityWebRequest(apiUrl, "POST"))
             {
+                SetHeaders(request);
                 request.uploadHandler = new UploadHandlerRaw(jsonBytes);
                 request.downloadHandler = new DownloadHandlerBuffer();
                 request.SetRequestHeader("Content-Type", "application/json");
@@ -333,6 +356,7 @@ namespace Coordination {
 
             using (UnityWebRequest request = UnityWebRequest.Delete(url))
             {
+                SetHeaders(request);
                 Debug.Log("삭제 요청 받음 -> " + itemOptionId);
                 request.SetRequestHeader("Content-Type", "application/json");
 
@@ -382,6 +406,7 @@ namespace Coordination {
 
             using (UnityWebRequest request = new UnityWebRequest(url, "POST"))
             {
+                SetHeaders(request);
                 Debug.Log("추가 요청 받음 -> " + requestData.itemOptionId);
 
                 // JSON 데이터 바디로 추가
