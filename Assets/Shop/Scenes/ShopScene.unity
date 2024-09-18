@@ -1310,6 +1310,7 @@ MonoBehaviour:
   characterModel: {fileID: 0}
   headBone: {fileID: 0}
   handBone: {fileID: 0}
+  neckBone: {fileID: 0}
 --- !u!114 &678124567
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1545,7 +1546,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0.000030518}
-  m_SizeDelta: {x: 0, y: 1069.4631}
+  m_SizeDelta: {x: 0, y: 738.4806}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &801622677
 MonoBehaviour:

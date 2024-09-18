@@ -16,7 +16,7 @@ public class PlayerEquipmentManager : MonoBehaviour
     private GameObject equippedGlasses;
     private GameObject equippedBag;
 
-    private string fbxPath = "Assets/Shop/Items/";
+    private string fbxPath = "Items/";
 
     void Start()
     {
@@ -98,6 +98,7 @@ public class PlayerEquipmentManager : MonoBehaviour
         // 런타임에서는 Resources.Load를 사용하여 프리팹을 로드
         string categoryName = GetCategoryNameById(categoryId);
         string prefabPath = $"Items/{categoryName}_{itemOptionId}"; // Resources 폴더 내 경로
+        
         GameObject itemPrefab = Resources.Load<GameObject>(prefabPath);
 
         if (itemPrefab == null)
@@ -114,8 +115,9 @@ public class PlayerEquipmentManager : MonoBehaviour
                 RemoveExistingHat();
                 if (equippedHat != null) Destroy(equippedHat);
                 equippedHat = Instantiate(itemPrefab, headBone);
-                equippedHat.transform.localPosition = Vector3.zero;
-                equippedHat.transform.localRotation = Quaternion.identity;
+                equippedHat.transform.localPosition = new Vector3(0.0f, 0.000536f, 0.00010f);
+                equippedHat.transform.localRotation = Quaternion.Euler(new Vector3(3.872f, -179.781f, -0.145f)); // z축을 90도 회전
+                equippedHat.transform.localScale = new Vector3(0.00324f, 0.00350f, 0.00412f); // 주신 로컬 스케일 값 적용
                 break;
 
             case 2: // 목걸이
@@ -130,16 +132,17 @@ public class PlayerEquipmentManager : MonoBehaviour
                 RemoveExistingGlasses();
                 if (equippedGlasses != null) Destroy(equippedGlasses);
                 equippedGlasses = Instantiate(itemPrefab, headBone);
-                equippedGlasses.transform.localPosition = Vector3.zero;
-                equippedGlasses.transform.localRotation = Quaternion.identity;
+                equippedGlasses.transform.localPosition = new Vector3(0.00032f, 0.00018f, 0.00102f);
+                equippedGlasses.transform.localRotation = Quaternion.Euler(new Vector3(-0.404f, 91.894f, 0.013f)); // z축을 90도 회전
+                equippedGlasses.transform.localScale = new Vector3(0.000258f, 0.000258f, 0.000258f); // 주신 로컬 스케일 값 적용
                 break;
 
             case 4: // 가방
                 RemoveExistingBag(); // 기존 가방 삭제
-                equippedBag = Instantiate(itemPrefab, handBone);
-                equippedBag.transform.localPosition = new Vector3(-0.0007f, 0.00192f, -0.00056f);
-                equippedBag.transform.localRotation = Quaternion.Euler(new Vector3(4.409f, -57.531f, -135.701f));
-                equippedBag.transform.localScale = new Vector3(0.1546509f, 0.1093701f, 0.02660948f); // 주신 로컬 스케일 값 적용
+                equippedBag = Instantiate(itemPrefab, handBone); // 손 본에 가방 장착
+                equippedBag.transform.localPosition = new Vector3(-0.00123f, 0.00301f, -0.00181f);
+                equippedBag.transform.localRotation = Quaternion.Euler(new Vector3(-1.488f, 118.743f, 134.081f)); // z축을 90도 회전
+                equippedBag.transform.localScale = new Vector3(0.000973f, 0.000688f, 0.000167f); // 주신 로컬 스케일 값 적용
                 break;
 
             default:
