@@ -118,6 +118,11 @@ public class PlayerEquipmentManager : MonoBehaviour
                 equippedHat.transform.localPosition = new Vector3(0.0f, 0.000536f, 0.00010f);
                 equippedHat.transform.localRotation = Quaternion.Euler(new Vector3(3.872f, -179.781f, -0.145f)); // z축을 90도 회전
                 equippedHat.transform.localScale = new Vector3(0.00324f, 0.00350f, 0.00412f); // 주신 로컬 스케일 값 적용
+                equippedHat.layer = 6;  // 원하는 레이어 번호로 설정
+                // 하위 오브젝트들도 동일한 레이어로 설정하려면
+                foreach (Transform child in equippedHat.transform) {
+                    child.gameObject.layer = 6;
+                }
                 break;
 
             case 2: // 목걸이
@@ -126,6 +131,11 @@ public class PlayerEquipmentManager : MonoBehaviour
                 equippedNecklace = Instantiate(itemPrefab, neckBone);
                 equippedNecklace.transform.localPosition = Vector3.zero;
                 equippedNecklace.transform.localRotation = Quaternion.identity;
+                equippedHat.layer = 6;  // 원하는 레이어 번호로 설정
+                // 하위 오브젝트들도 동일한 레이어로 설정하려면
+                foreach (Transform child in equippedNecklace.transform) {
+                    child.gameObject.layer = 6;
+                }
                 break;
 
             case 3: // 안경
@@ -135,6 +145,11 @@ public class PlayerEquipmentManager : MonoBehaviour
                 equippedGlasses.transform.localPosition = new Vector3(0.00032f, 0.00018f, 0.00102f);
                 equippedGlasses.transform.localRotation = Quaternion.Euler(new Vector3(-0.404f, 91.894f, 0.013f)); // z축을 90도 회전
                 equippedGlasses.transform.localScale = new Vector3(0.000258f, 0.000258f, 0.000258f); // 주신 로컬 스케일 값 적용
+                equippedHat.layer = 6;  // 원하는 레이어 번호로 설정
+                // 하위 오브젝트들도 동일한 레이어로 설정하려면
+                foreach (Transform child in equippedGlasses.transform) {
+                    child.gameObject.layer = 6;
+                }
                 break;
 
             case 4: // 가방
@@ -143,6 +158,11 @@ public class PlayerEquipmentManager : MonoBehaviour
                 equippedBag.transform.localPosition = new Vector3(-0.00123f, 0.00301f, -0.00181f);
                 equippedBag.transform.localRotation = Quaternion.Euler(new Vector3(-1.488f, 118.743f, 134.081f)); // z축을 90도 회전
                 equippedBag.transform.localScale = new Vector3(0.000973f, 0.000688f, 0.000167f); // 주신 로컬 스케일 값 적용
+                equippedHat.layer = 6;  // 원하는 레이어 번호로 설정
+                // 하위 오브젝트들도 동일한 레이어로 설정하려면
+                foreach (Transform child in equippedBag.transform) {
+                    child.gameObject.layer = 6;
+                }
                 break;
 
             default:

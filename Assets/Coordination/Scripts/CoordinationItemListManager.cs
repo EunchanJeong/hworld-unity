@@ -71,7 +71,8 @@ namespace Coordination {
             // // 환경 변수 불러오기
             // apiUrl = Environment.GetEnvironmentVariable("UNITY_APP_API_URL");
             // basicApiUrl = apiUrl + "/coordinations";
-            string basicApiUrl = ServerConfig.hostUrl;
+            apiUrl = ServerConfig.hostUrl;
+            basicApiUrl = apiUrl + "/coordinations";
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;
 
