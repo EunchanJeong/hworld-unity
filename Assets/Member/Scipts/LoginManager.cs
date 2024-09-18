@@ -21,11 +21,13 @@ public class LoginManager : MonoBehaviour
 
     void Start()
     {
-        // .env 파일 로드
-        DotEnv.Load();
+        // // .env 파일 로드
+        // DotEnv.Load();
         
-        // 환경 변수 불러오기
-        apiUrl = Environment.GetEnvironmentVariable("UNITY_APP_API_URL");
+        // // 환경 변수 불러오기
+        // apiUrl = Environment.GetEnvironmentVariable("UNITY_APP_API_URL");
+
+        apiUrl = ServerConfig.hostUrl;
         basicApiUrl = apiUrl + "/members/login";
 
         Cursor.visible = true;
