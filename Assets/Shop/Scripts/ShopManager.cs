@@ -80,7 +80,8 @@ public class ShopManager : MonoBehaviour
     // 캐릭터 3D 모델을 참조할 변수
     public GameObject characterModel; // 캐릭터 3D 모델
     public Transform headBone; // 모자나 안경을 장착할 위치 (머리)
-    public Transform handBone; // 가방이나 목걸이를 장착할 위치 (몸)
+    public Transform handBone; // 가방을 장착할 위치 (몸)
+    public Transform neckBone; // 목걸이를 장착할 위치
 
     // 아이템 프리팹을 관리할 Dictionary
     public Dictionary<string, GameObject> itemPrefabs = new Dictionary<string, GameObject>(); // 아이템 프리팹들을 저장하는 딕셔너리
@@ -141,6 +142,18 @@ public class ShopManager : MonoBehaviour
             if (handBone == null)
             {
                 Debug.LogError("hand_l 본을 찾을 수 없습니다.");
+            }
+
+            neckBone = FindBone(characterInstance.transform, "head");
+            if (neckBone == null)
+            {
+                Debug.LogError("head 본을 찾을 수 없습니다.");
+            }
+
+            headBone = FindBone(characterInstance.transform, "head");
+            if (headBone == null)
+            {
+                Debug.LogError("head 본을 찾을 수 없습니다.");
             }
         }
 
@@ -678,6 +691,16 @@ void RemoveEquippedItem(int categoryId) // !!! 장착된 아이템을 제거하�
         switch (selectedCategoryId)
         {
             case 1: // 모자
+
+                // handBone에서 "hat"이라는 단어가 포함된 오브젝트 제거
+                Transform existingHat = FindObjectContainingName(headBone, "hat");
+                if (existingHat != null)
+                {
+                    Debug.Log("기존 가방 삭제");
+                    Destroy(existingHat.gameObject);
+                    StartCoroutine(DeleteSelectedOptionToCharacterItem(selectedCategoryId));
+                }
+
                 if (equippedHat != null) Destroy(equippedHat);
                 equippedHat = Instantiate(itemPrefab, headBone); // 머리 본에 모자 장착
                 equippedHat.transform.localPosition = Vector3.zero;
@@ -685,6 +708,16 @@ void RemoveEquippedItem(int categoryId) // !!! 장착된 아이템을 제거하�
                 break;
 
             case 2: // 목걸이
+
+                // handBone에서 "glasses"이라는 단어가 포함된 오브젝트 제거
+                Transform existingNecklace = FindObjectContainingName(headBone, "necklace");
+                if (existingNecklace != null)
+                {
+                    Debug.Log("기존 가방 삭제");
+                    Destroy(existingNecklace.gameObject);
+                    StartCoroutine(DeleteSelectedOptionToCharacterItem(selectedCategoryId));
+                }
+
                 if (equippedNecklace != null) Destroy(equippedNecklace);
                 equippedNecklace = Instantiate(itemPrefab, handBone); // 몸 본에 목걸이 장착
                 equippedNecklace.transform.localPosition = Vector3.zero;
@@ -692,8 +725,18 @@ void RemoveEquippedItem(int categoryId) // !!! 장착된 아이템을 제거하�
                 break;
 
             case 3: // 안경
+
+                // handBone에서 "glasses"이라는 단어가 포함된 오브젝트 제거
+                Transform existingGlasses = FindObjectContainingName(headBone, "glasses");
+                if (existingGlasses != null)
+                {
+                    Debug.Log("기존 가방 삭제");
+                    Destroy(existingGlasses.gameObject);
+                    StartCoroutine(DeleteSelectedOptionToCharacterItem(selectedCategoryId));
+                }
+
                 if (equippedGlasses != null) Destroy(equippedGlasses);
-                equippedGlasses = Instantiate(itemPrefab, headBone); // 머리 본에 안경 장착
+                equippedGlasses = Instantiate(itemPrefab, neckBone); // 머리 본에 안경 장착
                 equippedGlasses.transform.localPosition = Vector3.zero;
                 equippedGlasses.transform.localRotation = Quaternion.identity;
                 break;
