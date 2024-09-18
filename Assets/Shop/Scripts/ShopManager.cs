@@ -703,8 +703,9 @@ void RemoveEquippedItem(int categoryId) // !!! 장착된 아이템을 제거하�
 
                 if (equippedHat != null) Destroy(equippedHat);
                 equippedHat = Instantiate(itemPrefab, headBone); // 머리 본에 모자 장착
-                equippedHat.transform.localPosition = Vector3.zero;
-                equippedHat.transform.localRotation = Quaternion.identity;
+                equippedHat.transform.localPosition = new Vector3(0.0f, 0.00053f, 0.0000f);
+                equippedHat.transform.localRotation = Quaternion.Euler(new Vector3(3.872f, -179.781f, -0.145f)); // z축을 90도 회전
+                equippedHat.transform.localScale = new Vector3(0.00324f, 0.00350f, 0.00389f); // 주신 로컬 스케일 값 적용
                 break;
 
             case 2: // 목걸이
@@ -737,8 +738,10 @@ void RemoveEquippedItem(int categoryId) // !!! 장착된 아이템을 제거하�
 
                 if (equippedGlasses != null) Destroy(equippedGlasses);
                 equippedGlasses = Instantiate(itemPrefab, neckBone); // 머리 본에 안경 장착
-                equippedGlasses.transform.localPosition = Vector3.zero;
-                equippedGlasses.transform.localRotation = Quaternion.identity;
+                
+                equippedGlasses.transform.localPosition = new Vector3(0.00032f, 0.00018f, 0.00102f);
+                equippedGlasses.transform.localRotation = Quaternion.Euler(new Vector3(-0.404f, 91.894f, 0.013f)); // z축을 90도 회전
+                equippedGlasses.transform.localScale = new Vector3(0.000258f, 0.000258f, 0.000258f); // 주신 로컬 스케일 값 적용
                 break;
 
             case 4: // 가방
@@ -756,9 +759,9 @@ void RemoveEquippedItem(int categoryId) // !!! 장착된 아이템을 제거하�
                 // 새로운 가방 장착
                 StartCoroutine(PostSelectedOptionToCharacterItem(selectedItemOptionId));
                 equippedBag = Instantiate(itemPrefab, handBone); // 손 본에 가방 장착
-                equippedBag.transform.localPosition = new Vector3(-0.0007f, 0.00192f, -0.00056f); // 주신 로컬 위치 값 적용
-                equippedBag.transform.localRotation = Quaternion.Euler(new Vector3(4.409f, -57.531f, -135.701f)); // 로컬 회전은 기본으로 설정
-                equippedBag.transform.localScale = new Vector3(0.1546509f, 0.1093701f, 0.02660948f); // 주신 로컬 스케일 값 적용
+                equippedBag.transform.localPosition = new Vector3(-0.00123f, 0.00301f, -0.00181f);
+                equippedBag.transform.localRotation = Quaternion.Euler(new Vector3(-1.488f, 118.743f, 134.081f)); // z축을 90도 회전
+                equippedBag.transform.localScale = new Vector3(0.000973f, 0.000688f, 0.000167f); // 주신 로컬 스케일 값 적용
 
 
                 break;
