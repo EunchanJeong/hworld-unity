@@ -702,6 +702,8 @@ void RemoveEquippedItem(int categoryId) // !!! 장착된 아이템을 제거하�
                 }
 
                 if (equippedHat != null) Destroy(equippedHat);
+
+                StartCoroutine(PostSelectedOptionToCharacterItem(selectedItemOptionId));
                 equippedHat = Instantiate(itemPrefab, headBone); // 머리 본에 모자 장착
                 equippedHat.transform.localPosition = new Vector3(0.0f, 0.00053f, 0.0000f);
                 equippedHat.transform.localRotation = Quaternion.Euler(new Vector3(3.872f, -179.781f, -0.145f)); // z축을 90도 회전
@@ -720,6 +722,8 @@ void RemoveEquippedItem(int categoryId) // !!! 장착된 아이템을 제거하�
                 }
 
                 if (equippedNecklace != null) Destroy(equippedNecklace);
+
+                StartCoroutine(PostSelectedOptionToCharacterItem(selectedItemOptionId));
                 equippedNecklace = Instantiate(itemPrefab, handBone); // 몸 본에 목걸이 장착
                 equippedNecklace.transform.localPosition = Vector3.zero;
                 equippedNecklace.transform.localRotation = Quaternion.identity;
@@ -739,6 +743,7 @@ void RemoveEquippedItem(int categoryId) // !!! 장착된 아이템을 제거하�
                 if (equippedGlasses != null) Destroy(equippedGlasses);
                 equippedGlasses = Instantiate(itemPrefab, neckBone); // 머리 본에 안경 장착
                 
+                StartCoroutine(PostSelectedOptionToCharacterItem(selectedItemOptionId));
                 equippedGlasses.transform.localPosition = new Vector3(0.00032f, 0.00018f, 0.00102f);
                 equippedGlasses.transform.localRotation = Quaternion.Euler(new Vector3(-0.404f, 91.894f, 0.013f)); // z축을 90도 회전
                 equippedGlasses.transform.localScale = new Vector3(0.000258f, 0.000258f, 0.000258f); // 주신 로컬 스케일 값 적용
