@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: e1230189e7776974aa68668b1cf21139
+guid: d9e55555cf53a2a4fb7c941fc0410712
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
@@ -7,38 +7,43 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: Human.body.017
-    second: {fileID: 2100000, guid: 8a7b9c94f87cb7840bd344c7a9ef27c4, type: 2}
+      name: Human.body
+    second: {fileID: 2100000, guid: 1c570152e76f6d4408c27af4159ba5d7, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: Human.culturalibre_hair_01.007
-    second: {fileID: 2100000, guid: 8d3a6d7aca783514f9ef39d3e412c4f6, type: 2}
+      name: Human.culturalibre_hair_01
+    second: {fileID: 2100000, guid: b509c5a1bbf43ee4d949ffa08d251d96, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: Human.eyelashes01.007
-    second: {fileID: 2100000, guid: 516436f08986e0c488d2071c99a88c5f, type: 2}
+      name: Human.elvs_crude_t-shirt_male
+    second: {fileID: 2100000, guid: dc170457423e97242a137e3ad8d765eb, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: Human.female_casualsuit01.002
-    second: {fileID: 2100000, guid: 73b354ace637c7349bf0571c8510fd72, type: 2}
+      name: Human.eyelashes01
+    second: {fileID: 2100000, guid: 9cac91de84042f64d850c0d1951ff180, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: Human.low-poly.016
-    second: {fileID: 2100000, guid: bc11faacb76744f49bd33741b6cdefd1, type: 2}
+      name: Human.low-poly
+    second: {fileID: 2100000, guid: 3af344d813480e0449c8912c46301e5d, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: Human.mindfront_eyebrows_02.005
-    second: {fileID: 2100000, guid: 50293e2544525354c8ef9a848be49bef, type: 2}
+      name: Human.mindfront_eyebrows_02
+    second: {fileID: 2100000, guid: 3d629a260cc0c3b43bf7fd1585a0af43, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: Human.punkduck_running_shoes_01.004
-    second: {fileID: 2100000, guid: efb2619d4bcbda1469b4dab6dfc67718, type: 2}
+      name: Human.punkduck_female_tight_jeans
+    second: {fileID: 2100000, guid: 85f1d9f157ae36945b0a5afcce1e70fc, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Human.punkduck_running_shoes_01
+    second: {fileID: 2100000, guid: 872f5842e62b64743a603eeaa3e3295d, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
@@ -59,7 +64,7 @@ ModelImporter:
     animationDoRetargetingWarnings: 0
     importAnimatedCustomProperties: 0
     importConstraints: 0
-    animationCompression: 1
+    animationCompression: 3
     animationRotationError: 0.5
     animationPositionError: 0.5
     animationScaleError: 0.5
@@ -128,13 +133,13 @@ ModelImporter:
     globalScale: 1
     rootMotionBoneName: 
     hasTranslationDoF: 0
-    hasExtraRoot: 0
+    hasExtraRoot: 1
     skeletonHasParents: 1
   lastHumanDescriptionAvatarSource: {instanceID: 0}
   autoGenerateAvatarMappingIfUnspecified: 1
-  animationType: 2
+  animationType: 3
   humanoidOversampling: 1
-  avatarSetup: 0
+  avatarSetup: 1
   addHumanoidExtraRootOnlyWhenUsingAvatar: 1
   importBlendShapeDeformPercent: 1
   remapMaterialsIfMaterialImportModeIsNone: 0

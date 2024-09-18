@@ -8,8 +8,9 @@ public class PlayerEquipmentManager : MonoBehaviour
 {
     // 캐릭터의 본 위치
     public Transform headBone; // 모자를 장착할 본
-    public Transform handBone; // 목걸이와 가방을 장착할 본
+    public Transform handBone; // 가방을 장착할 본
 
+    public Transform neckBone; // 목걸이를 장착할 본
     private GameObject equippedHat;
     private GameObject equippedNecklace;
     private GameObject equippedGlasses;
@@ -27,6 +28,18 @@ public class PlayerEquipmentManager : MonoBehaviour
             if (handBone == null)
             {
                 Debug.LogError("hand_l 본을 찾을 수 없습니다.");
+            }
+            
+            neckBone = FindBone(playerObject.transform, "head");
+            if (neckBone == null)
+            {
+                Debug.LogError("head 본을 찾을 수 없습니다.");
+            }
+
+            headBone = FindBone(playerObject.transform, "head");
+            if (headBone == null)
+            {
+                Debug.LogError("head 본을 찾을 수 없습니다.");
             }
         }
         else
@@ -98,6 +111,7 @@ public class PlayerEquipmentManager : MonoBehaviour
         switch (categoryId)
         {
             case 1: // 모자
+                RemoveExistingHat();
                 if (equippedHat != null) Destroy(equippedHat);
                 equippedHat = Instantiate(itemPrefab, headBone);
                 equippedHat.transform.localPosition = Vector3.zero;
@@ -105,13 +119,15 @@ public class PlayerEquipmentManager : MonoBehaviour
                 break;
 
             case 2: // 목걸이
+                RemoveExistingNecklace();
                 if (equippedNecklace != null) Destroy(equippedNecklace);
-                equippedNecklace = Instantiate(itemPrefab, handBone);
+                equippedNecklace = Instantiate(itemPrefab, neckBone);
                 equippedNecklace.transform.localPosition = Vector3.zero;
                 equippedNecklace.transform.localRotation = Quaternion.identity;
                 break;
 
             case 3: // 안경
+                RemoveExistingGlasses();
                 if (equippedGlasses != null) Destroy(equippedGlasses);
                 equippedGlasses = Instantiate(itemPrefab, headBone);
                 equippedGlasses.transform.localPosition = Vector3.zero;
@@ -141,6 +157,42 @@ public class PlayerEquipmentManager : MonoBehaviour
             {
                 Destroy(child.gameObject); // "bag"이 포함된 오브젝트를 삭제
                 Debug.Log("기존 가방을 삭제했습니다.");
+            }
+        }
+    }
+
+    void RemoveExistingNecklace()
+    {
+        foreach (Transform child in neckBone)
+        {
+            if (child.name.ToLower().Contains("necklace"))
+            {
+                Destroy(child.gameObject); // "bag"이 포함된 오브젝트를 삭제
+                Debug.Log("기존 목걸이을 삭제했습니다.");
+            }
+        }
+    }
+
+    void RemoveExistingGlasses()
+    {
+        foreach (Transform child in headBone)
+        {
+            if (child.name.ToLower().Contains("glasses"))
+            {
+                Destroy(child.gameObject); // "bag"이 포함된 오브젝트를 삭제
+                Debug.Log("기존 안경을 삭제했습니다.");
+            }
+        }
+    }
+
+    void RemoveExistingHat()
+    {
+        foreach (Transform child in headBone)
+        {
+            if (child.name.ToLower().Contains("hat"))
+            {
+                Destroy(child.gameObject); // "bag"이 포함된 오브젝트를 삭제
+                Debug.Log("기존 모자을 삭제했습니다.");
             }
         }
     }
