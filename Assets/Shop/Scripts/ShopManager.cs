@@ -110,7 +110,7 @@ public class ShopManager : MonoBehaviour
         
         // // 환경 변수 불러오기
         // string basicApiUrl = Environment.GetEnvironmentVariable("UNITY_APP_API_URL");
-          string basicApiUrl = ServerConfig.hostUrl;
+        string basicApiUrl = ServerConfig.hostUrl;
         ShopListapiUrl = basicApiUrl + "/shop";
         ShopItemListapiUrl = basicApiUrl + "/shop/item";
         CartApiUrl = basicApiUrl + "/carts";
