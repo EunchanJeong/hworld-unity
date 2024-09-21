@@ -94,7 +94,7 @@ public class PlayerEquipmentManager : MonoBehaviour
                 RemoveExistingHat();
                 if (equippedHat != null) Destroy(equippedHat);
 
-                if(optionId == 15)
+                if(optionId == 15 || optionId == 16)
                 {
                     equippedHat = Instantiate(itemPrefab, headBone); // 머리 본에 모자 장착
                     equippedHat.transform.localPosition = new Vector3(0.0f, 0.00053f, 0.0000f);
