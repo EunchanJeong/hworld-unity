@@ -59,7 +59,7 @@ public class CoordinationSaveManager : MonoBehaviour
         // 환경 변수 불러오기
         // basicApiUrl = Environment.GetEnvironmentVariable("UNITY_APP_API_URL");
         basicApiUrl = ServerConfig.hostUrl;
-        apiUrl = "http://localhost:8080/characters/item";
+        apiUrl = basicApiUrl + "/characters/item";
 
         if (cameraToCapture == null)
         {
