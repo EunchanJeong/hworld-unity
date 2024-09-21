@@ -40,7 +40,7 @@ public class PlayerEquipmentManager : MonoBehaviour
         if (playerObject != null)
         {
             handBone = FindBone(playerObject.transform, "hand_l");
-            neckBone = FindBone(playerObject.transform, "head");
+            neckBone = FindBone(playerObject.transform, "neck_01");
             headBone = FindBone(playerObject.transform, "head");
 
             if (handBone == null || neckBone == null || headBone == null)
@@ -85,16 +85,29 @@ public class PlayerEquipmentManager : MonoBehaviour
             return;
         }
 
+        int optionId = itemOptionId;
+
         // 장착 로직
         switch (categoryId)
         {
             case 1: // 모자
                 RemoveExistingHat();
                 if (equippedHat != null) Destroy(equippedHat);
-                equippedHat = Instantiate(itemPrefab, headBone);
-                equippedHat.transform.localPosition = new Vector3(0.0f, 0.000536f, 0.00010f);
-                equippedHat.transform.localRotation = Quaternion.Euler(new Vector3(3.872f, -179.781f, -0.145f)); // 모자의 로테이션 설정
-                equippedHat.transform.localScale = new Vector3(0.00324f, 0.00350f, 0.00412f); // 모자의 스케일 설정
+
+                if(optionId == 15)
+                {
+                    equippedHat = Instantiate(itemPrefab, headBone); // 머리 본에 모자 장착
+                    equippedHat.transform.localPosition = new Vector3(0.0f, 0.00053f, 0.0000f);
+                    equippedHat.transform.localRotation = Quaternion.Euler(new Vector3(3.872f, -179.781f, -0.145f)); // z축을 90도 회전
+                    equippedHat.transform.localScale = new Vector3(0.00324f, 0.00350f, 0.00389f); // 주신 로컬 스케일 값 적용
+                }
+                else if(optionId == 17) {
+                    equippedHat = Instantiate(itemPrefab, headBone); // 머리 본에 모자 장착
+                    equippedHat.transform.localPosition = new Vector3(0.0f, 0.00106f, -0.0001f);
+                    equippedHat.transform.localRotation = Quaternion.Euler(new Vector3(-7.906f, -1.323f, 0.071f)); // z축을 90도 회전
+                    equippedHat.transform.localScale = new Vector3(0.00077f, 0.00083f, 0.00094f); // 주신 로컬 스케일 값 적용
+                }
+
                 equippedHat.layer = 6;  // 원하는 레이어 번호로 설정
                 // 하위 오브젝트들도 동일한 레이어로 설정
                 foreach (Transform child in equippedHat.transform)
@@ -106,9 +119,22 @@ public class PlayerEquipmentManager : MonoBehaviour
             case 2: // 목걸이
                 RemoveExistingNecklace();
                 if (equippedNecklace != null) Destroy(equippedNecklace);
-                equippedNecklace = Instantiate(itemPrefab, neckBone);
-                equippedNecklace.transform.localPosition = Vector3.zero;
-                equippedNecklace.transform.localRotation = Quaternion.identity;
+                
+                if(optionId == 11)
+                {
+                    equippedNecklace = Instantiate(itemPrefab, neckBone); // 몸 본에 목걸이 장착
+                    equippedNecklace.transform.localPosition = new Vector3(0.0f, 0.00037f, 0.00138f);
+                    equippedNecklace.transform.localRotation = Quaternion.Euler(new Vector3(-0.934f, -177.521f, 0.359f));
+                    equippedNecklace.transform.localScale = new Vector3(0.00082f, 0.00067f, 0.00088f);
+                }
+                else if(optionId == 12)
+                {
+                    equippedNecklace = Instantiate(itemPrefab, neckBone); // 몸 본에 목걸이 장착
+                    equippedNecklace.transform.localPosition = new Vector3(0.0f, 0.00024f, 0.00059f);
+                    equippedNecklace.transform.localRotation = Quaternion.Euler(new Vector3(13.839f, -358.167f, -0.379f));
+                    equippedNecklace.transform.localScale = new Vector3(0.00079f, 0.00045f, 0.00059f);
+                }
+
                 equippedNecklace.layer = 6;  // 원하는 레이어 번호로 설정
                 // 하위 오브젝트들도 동일한 레이어로 설정
                 foreach (Transform child in equippedNecklace.transform)
@@ -134,10 +160,22 @@ public class PlayerEquipmentManager : MonoBehaviour
 
             case 4: // 가방
                 RemoveExistingBag(); // 기존 가방 삭제
-                equippedBag = Instantiate(itemPrefab, handBone); // 손 본에 가방 장착
-                equippedBag.transform.localPosition = new Vector3(-0.00123f, 0.00301f, -0.00181f);
-                equippedBag.transform.localRotation = Quaternion.Euler(new Vector3(-1.488f, 118.743f, 134.081f)); // 가방의 로테이션 설정
-                equippedBag.transform.localScale = new Vector3(0.000973f, 0.000688f, 0.000167f); // 가방의 스케일 설정
+                
+                if(optionId == 9) 
+                {
+                    equippedBag = Instantiate(itemPrefab, handBone); // 손 본에 가방 장착
+                    equippedBag.transform.localPosition = new Vector3(-0.00087f, 0.00203f, -0.00121f);
+                    equippedBag.transform.localRotation = Quaternion.Euler(new Vector3(-1.488f, 118.743f, 134.081f)); // z축을 90도 회전
+                    equippedBag.transform.localScale = new Vector3(0.000964f, 0.000418f, 0.000165f); // 주신 로컬 스케일 값 적용
+                }
+                else if(optionId == 10)
+                {
+                    equippedBag = Instantiate(itemPrefab, handBone); // 손 본에 가방 장착
+                    Debug.Log("FBX 아이템 옵션: " + itemOptionId);
+                    equippedBag.transform.localPosition = new Vector3(-0.00099f, 0.00248f, -0.00153f);
+                    equippedBag.transform.localRotation = Quaternion.Euler(new Vector3(-45.24f, 377.64f, 188.43f)); // z축을 90도 회전
+                    equippedBag.transform.localScale = new Vector3(0.00145f, 0.000823f, 0.000844f); // 주신 로컬 스케일 값 적용
+                }
                 equippedBag.layer = 6;  // 원하는 레이어 번호로 설정
                 // 하위 오브젝트들도 동일한 레이어로 설정
                 foreach (Transform child in equippedBag.transform)
