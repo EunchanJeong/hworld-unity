@@ -95,7 +95,7 @@ public class LoginManager : MonoBehaviour
                     Debug.Log("authToken -> " + authToken);
                     Debug.Log("refreshToken -> " + refreshToken);
 
-                    SceneManager.LoadScene("MainScene");
+                    SceneManager.LoadScene("SelectCharacterScene");
                 }
                 else
                 {

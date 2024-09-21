@@ -51,6 +51,9 @@ public class CoordinationSaveManager : MonoBehaviour
     private static string authToken;
     private static string refreshToken;
 
+    public GameObject savePopup;
+    public Transform popupParent;
+
     void Start()
     {
         // .env 파일 로드
@@ -263,10 +266,10 @@ public class CoordinationSaveManager : MonoBehaviour
         // StartCoroutine(SendCoordinationData(title, imageUrl, itemOptionIdList));
 
         StartCoroutine(CaptureScreen((Texture2D croppedTexture) => 
-    {
-        string title = titleInput.text; // 제목을 가져옵니다
-        StartCoroutine(SendCoordinationData(title, croppedTexture, itemOptionIdList));
-    }));
+        {
+            string title = titleInput.text; // 제목을 가져옵니다
+            StartCoroutine(SendCoordinationData(title, croppedTexture, itemOptionIdList));
+        }));
     }
 
     private IEnumerator SendCoordinationData(string title, Texture2D imageToSend, List<int> itemOptionIdList)
@@ -327,6 +330,10 @@ public class CoordinationSaveManager : MonoBehaviour
                     else
                     {
                         Debug.Log("성공적으로 데이터를 전송했습니다: " + request2.downloadHandler.text);
+
+                        GameObject popup = Instantiate(savePopup, popupParent);
+                        Button yesButton = popup.transform.Find("YesButton").GetComponent<Button>();
+                        yesButton.onClick.AddListener(() => Destroy(popup));
                     }
                 }
 

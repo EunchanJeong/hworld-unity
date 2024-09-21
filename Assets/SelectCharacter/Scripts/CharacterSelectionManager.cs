@@ -38,9 +38,8 @@ public class CharacterSelectionManager : MonoBehaviour
     private string AddCharacterApiUrl; // 캐릭터 생성 API URL
 
     // 팝업창 UI 요소들
-    public GameObject popupPanel; // 팝업창 패널
-    public Text popupMessage; // 팝업창에 표시할 메시지
-    public Button popupConfirmButton; // 팝업창 확인 버튼
+    public GameObject selectPopup;
+    public Transform popupParent;
 
     private static string authToken;
     private static string refreshToken;
@@ -63,15 +62,9 @@ public class CharacterSelectionManager : MonoBehaviour
         // 캐릭터 생성 버튼 클릭 이벤트 등록
         createCharacterButton.onClick.AddListener(() => OnCreateCharacterButtonClicked());
 
-        // 팝업창 확인 버튼 클릭 이벤트 등록
-        popupConfirmButton.onClick.AddListener(OnConfirmButtonClicked);
-
         // 첫 번째 카테고리(casual1) 기본 로드 및 첫 번째 캐릭터 선택
         OnCategoryButtonClicked("casual1", casual1Button);
         SelectFirstCharacter();
-
-        // 팝업창 기본적으로 비활성화
-        popupPanel.SetActive(false);
     }
 
     void Update()
@@ -268,13 +261,17 @@ public class CharacterSelectionManager : MonoBehaviour
     {
         if (selectedCharacter != null)
         {
-            // 팝업창을 비활성화
-            popupPanel.SetActive(false);
-
             string characterName = selectedCharacter.name;
             int characterType = CalculateCharacterType(characterName); // 캐릭터 타입 계산
 
-            StartCoroutine(PostCharacterType(characterType)); // API 호출
+            // StartCoroutine(PostCharacterType(characterType)); // API 호출
+
+            GameObject popup = Instantiate(selectPopup, popupParent);
+            Button yesButton = popup.transform.Find("YesButton").GetComponent<Button>();
+            yesButton.onClick.AddListener(() => {
+                Destroy(popup);
+                SceneManager.LoadScene("MainScene");
+            });
         }
         else
         {
@@ -282,49 +279,42 @@ public class CharacterSelectionManager : MonoBehaviour
         }
     }
 
-    // 캐릭터 타입을 POST로 전송하는 코루틴
-    IEnumerator PostCharacterType(int characterType)
-    {
-        Debug.Log("전송할 characterType: " + characterType);
+    // // 캐릭터 타입을 POST로 전송하는 코루틴
+    // IEnumerator PostCharacterType(int characterType)
+    // {
+    //     Debug.Log("전송할 characterType: " + characterType);
 
-        // 요청 데이터 준비
-        string jsonData = "{\"characterType\":" + characterType + "}";
+    //     // 요청 데이터 준비
+    //     string jsonData = "{\"characterType\":" + characterType + "}";
 
-        using (UnityWebRequest request = UnityWebRequest.PostWwwForm(AddCharacterApiUrl, jsonData))
-        {
-            SetHeaders(request);
-            request.SetRequestHeader("Content-Type", "application/json");
-            byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonData);
-            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
-            request.downloadHandler = new DownloadHandlerBuffer();
+    //     using (UnityWebRequest request = UnityWebRequest.PostWwwForm(AddCharacterApiUrl, jsonData))
+    //     {
+    //         SetHeaders(request);
+    //         request.SetRequestHeader("Content-Type", "application/json");
+    //         byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonData);
+    //         request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+    //         request.downloadHandler = new DownloadHandlerBuffer();
 
-            yield return request.SendWebRequest(); // 요청 전송
+    //         yield return request.SendWebRequest(); // 요청 전송
 
-            if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
-            {
-                Debug.LogError("POST 요청 실패: " + request.error);
-            }
-            else
-            {
-                Debug.Log("POST 요청 성공: " + request.downloadHandler.text);
-                ShowPopup("캐릭터가 생성되었습니다."); // 성공 시 팝업창 표시
-            }
-        }
-    }
+    //         if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
+    //         {
+    //             Debug.LogError("POST 요청 실패: " + request.error);
+    //         }
+    //         else
+    //         {
+    //             Debug.Log("POST 요청 성공: " + request.downloadHandler.text);
+    //             ShowPopup("캐릭터가 생성되었습니다."); // 성공 시 팝업창 표시
+    //         }
+    //     }
+    // }
 
-    // 팝업창 표시 함수
-    private void ShowPopup(string message)
-    {
-        popupMessage.text = message;
-        popupPanel.SetActive(true); // 팝업창 활성화
-    }
-
-    // 팝업 확인 버튼 클릭 시 씬 전환 함수
-    private void OnConfirmButtonClicked()
-    {
-        popupPanel.SetActive(false); // 팝업창 비활성화
-        SceneManager.LoadScene("MainScene"); // 새로운 씬으로 전환
-    }
+    // // 팝업 확인 버튼 클릭 시 씬 전환 함수
+    // private void OnConfirmButtonClicked()
+    // {
+    //     popupPanel.SetActive(false); // 팝업창 비활성화
+    //     SceneManager.LoadScene("MainScene"); // 새로운 씬으로 전환
+    // }
 
     // 캐릭터의 텍스트에 테두리 추가 함수
     private void AddTextOutline(Transform spawnPoint)

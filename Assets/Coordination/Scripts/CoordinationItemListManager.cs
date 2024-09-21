@@ -51,7 +51,7 @@ namespace Coordination {
         public GameObject deletePopup;
         public GameObject addPopup;
         public GameObject deletePopup2;
-        public GameObject applyPopup;
+        public GameObject participatePopup;
         public Transform popupParent;
 
         public List<CoordinationItemListResponseDTO> coordinationItemList;
@@ -111,11 +111,9 @@ namespace Coordination {
             deleteCoordinationButton.onClick.AddListener(() => { StartCoroutine(OnCoordinationDeleteButtonClick(newCoordinationId)); });
 
             // ApplyToCharacterButton 이벤트 설정
-            Button applyToCharacterButton = GameObject.Find("ApplyToCharacterButton").GetComponent<Button>();
-            applyToCharacterButton.onClick.RemoveAllListeners();
-
-            // coordinationId가 있을 때만 버튼에 이벤트 추가
-            applyToCharacterButton.onClick.AddListener(() => { StartCoroutine(OnApplyToCharacterButtonClick(newCoordinationId)); });
+            Button participateToContestButton = GameObject.Find("ParticipateToContestButton").GetComponent<Button>();
+            participateToContestButton.onClick.RemoveAllListeners();
+            participateToContestButton.onClick.AddListener(() => { StartCoroutine(OnParticipateToContestButtonClick()); });
         }
 
         private IEnumerator GetItemsForCoordination(int coordinationId)
@@ -235,67 +233,66 @@ namespace Coordination {
             }
         }
 
-        // 내 캐릭터에 적용 버튼 클릭 시
-        private IEnumerator OnApplyToCharacterButtonClick(int coordinationId)
+        // 콘테스트 참여 버튼 클릭 시
+        private IEnumerator OnParticipateToContestButtonClick()
         {
-            GameObject popup = Instantiate(applyPopup, popupParent);
+            GameObject popup = Instantiate(participatePopup, popupParent);
 
             Button yesButton = popup.transform.Find("YesButton").GetComponent<Button>();
-            Button noButton = popup.transform.Find("NoButton").GetComponent<Button>();
 
             // YesButton 클릭 시 적용 요청 보내기
-            yesButton.onClick.AddListener(() => StartCoroutine(ApplyToCharacter(coordinationId)));
-
-            // NoButton 클릭 시 팝업 닫기
-            noButton.onClick.AddListener(() => Destroy(popup));
+            yesButton.onClick.AddListener(() => {
+                Application.OpenURL("https://oasis-hworld.site/contest");
+                Destroy(popup);
+            });
 
             yield break;
         }
 
-        private IEnumerator ApplyToCharacter(int coordinationId) 
-        {
-            string apiUrl = $"{basicApiUrl}/apply-coordination";
-            // POST할 데이터 생성
-            var postDataList = new List<object>();
-            foreach (var coordinationItem in coordinationItemList)
-            {
-                var postData = new
-                {
-                    categoryId = coordinationItem.categoryId,
-                    coordinationId = coordinationId, 
-                    itemOptionId = coordinationItem.itemOptionId
-                };
+        // private IEnumerator ApplyToCharacter(int coordinationId) 
+        // {
+        //     string apiUrl = $"{basicApiUrl}/apply-coordination";
+        //     // POST할 데이터 생성
+        //     var postDataList = new List<object>();
+        //     foreach (var coordinationItem in coordinationItemList)
+        //     {
+        //         var postData = new
+        //         {
+        //             categoryId = coordinationItem.categoryId,
+        //             coordinationId = coordinationId, 
+        //             itemOptionId = coordinationItem.itemOptionId
+        //         };
 
-                postDataList.Add(postData); // 리스트에 추가
-            }
+        //         postDataList.Add(postData); // 리스트에 추가
+        //     }
 
-            // JSON으로 변환
-            string jsonData = JsonConvert.SerializeObject(postDataList);
-            byte[] jsonBytes = System.Text.Encoding.UTF8.GetBytes(jsonData);
+        //     // JSON으로 변환
+        //     string jsonData = JsonConvert.SerializeObject(postDataList);
+        //     byte[] jsonBytes = System.Text.Encoding.UTF8.GetBytes(jsonData);
 
-            using (UnityWebRequest request = new UnityWebRequest(apiUrl, "POST"))
-            {
-                SetHeaders(request);
-                request.uploadHandler = new UploadHandlerRaw(jsonBytes);
-                request.downloadHandler = new DownloadHandlerBuffer();
-                request.SetRequestHeader("Content-Type", "application/json");
+        //     using (UnityWebRequest request = new UnityWebRequest(apiUrl, "POST"))
+        //     {
+        //         SetHeaders(request);
+        //         request.uploadHandler = new UploadHandlerRaw(jsonBytes);
+        //         request.downloadHandler = new DownloadHandlerBuffer();
+        //         request.SetRequestHeader("Content-Type", "application/json");
 
-                // 요청을 보내고 기다림
-                yield return request.SendWebRequest();
+        //         // 요청을 보내고 기다림
+        //         yield return request.SendWebRequest();
 
-                if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
-                {
-                    Debug.LogError("Error: " + request.error);
-                }
-                else
-                {
-                    Debug.Log("성공적으로 데이터를 전송했습니다: " + request.downloadHandler.text);
+        //         if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
+        //         {
+        //             Debug.LogError("Error: " + request.error);
+        //         }
+        //         else
+        //         {
+        //             Debug.Log("성공적으로 데이터를 전송했습니다: " + request.downloadHandler.text);
                     
-                    // 현재 씬의 이름을 가져와서 다시 로드
-                    SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-                }
-            }
-        }
+        //             // 현재 씬의 이름을 가져와서 다시 로드
+        //             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        //         }
+        //     }
+        // }
 
         private IEnumerator LoadImageFromUrl(string url, Image imageComponent)
         {

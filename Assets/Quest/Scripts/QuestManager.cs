@@ -34,6 +34,9 @@ public class QuestManager : MonoBehaviour
     private static string authToken;
     private static string refreshToken;
 
+    public GameObject donePopup;
+    public Transform popupParent;
+
     private void Start()
     {
         // .env 파일 로드
@@ -241,7 +244,12 @@ public class QuestManager : MonoBehaviour
             }
             else
             {
-                GetQuestList(questId);
+                GameObject popup = Instantiate(donePopup, popupParent);
+                Button yesButton = popup.transform.Find("YesButton").GetComponent<Button>();
+                yesButton.onClick.AddListener(() => {
+                    Destroy(popup);
+                    GetQuestList(questId);
+                });
             }
         }
     }
