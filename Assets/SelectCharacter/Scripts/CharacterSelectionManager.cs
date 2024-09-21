@@ -274,7 +274,9 @@ public class CharacterSelectionManager : MonoBehaviour
             string characterName = selectedCharacter.name;
             int characterType = CalculateCharacterType(characterName); // 캐릭터 타입 계산
 
-            StartCoroutine(PostCharacterType(characterType)); // API 호출
+            // StartCoroutine(PostCharacterType(characterType)); // API 호출
+
+            ShowPopup("캐릭터가 생성되었습니다."); // 성공 시 팝업창 표시
         }
         else
         {
