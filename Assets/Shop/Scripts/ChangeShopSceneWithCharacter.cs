@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using StarterAssets;
@@ -7,9 +8,25 @@ using UnityEngine.SceneManagement;
 
 public class ChangeShopSceneWithCharacter : MonoBehaviour
 {
-private GameObject character;
+    public GameObject character;
     public GameObject characterInstance;
     public static ChangeShopSceneWithCharacter Instance { get; private set; }
+
+    // npc
+    public GameObject MLBNpc;
+    public GameObject MLBNpcBalloon;
+    private bool isPlayerNearbyMLB = false;  
+    public GameObject PradaNpc;
+    public GameObject PradaNpcBalloon;
+    private bool isPlayerNearbyPrada = false;  
+    public GameObject JesNpc;
+    public GameObject JesNpcBalloon;
+    private bool isPlayerNearbyJes = false;  
+    public GameObject CKNpc;
+    public GameObject CKNpcBalloon;
+    private bool isPlayerNearbyCK = false;  
+    
+    public float detectionRadius = 3.0f;  
 
     void Awake()
     {
@@ -33,6 +50,11 @@ private GameObject character;
             saveCharacterPosition();
             StartCoroutine(TransitionAfterPrefabLoad("ShopScene"));
         }
+
+        checkDistance(MLBNpc, MLBNpcBalloon, isPlayerNearbyMLB, 2);
+        checkDistance(PradaNpc, PradaNpcBalloon, isPlayerNearbyPrada, 0);
+        checkDistance(JesNpc, JesNpcBalloon, isPlayerNearbyJes, 1);
+        checkDistance(CKNpc, CKNpcBalloon, isPlayerNearbyCK, 3);
     }
 
     private IEnumerator TransitionAfterPrefabLoad(string sceneName)
@@ -41,10 +63,31 @@ private GameObject character;
         SceneManager.LoadScene(sceneName);
     }
 
+    void checkDistance(GameObject Npc, GameObject NpcBallon, bool isPlayerNearBy, int selectedShopIndex) {
+        float distanceToPlayer = Vector3.Distance(character.transform.position, Npc.transform.position);
+
+        if (distanceToPlayer <= detectionRadius)
+        {
+            isPlayerNearBy = true;
+            NpcBallon.SetActive(true);
+        }
+        else
+        {
+            isPlayerNearBy = false;
+            NpcBallon.SetActive(false);
+        }
+        if (isPlayerNearBy && Input.GetKeyDown(KeyCode.I))
+        {
+            ShopManager.selectedShopIndex = selectedShopIndex;  // 상점 선택
+
+            LoadCharacterPrefab();
+            saveCharacterPosition();
+            StartCoroutine(TransitionAfterPrefabLoad("ShopScene"));
+        }
+    }
+
     void LoadCharacterPrefab()
     {
-        character = GameObject.FindGameObjectWithTag("Player");
-
         if (character != null)
         {
             // 캐릭터 프리팹 인스턴스화

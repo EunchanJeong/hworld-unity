@@ -95,12 +95,12 @@ public class ShopManager : MonoBehaviour
     // private string fbxPath = "Assets/Shop/Items/";
     private string fbxPath = "Items/";
 
-    
-
     private GameObject characterInstance; // 캐릭터 인스턴스
 
     private static string authToken;
     private static string refreshToken;
+
+    public static int selectedShopIndex = 0;    // 상점 선택 매개변수
 
     // 게임이 시작될 때 실행되는 함수
     void Start()
@@ -118,7 +118,8 @@ public class ShopManager : MonoBehaviour
         UnequipItemUrl = basicApiUrl + "/characters/item/";
 
         // API에서 상점 및 모든 아이템 데이터를 초기 로드
-        GetShopsAndItemsFromAPI();
+        int selectedShopIndex = ShopManager.selectedShopIndex;
+        GetShopsAndItemsFromAPI(selectedShopIndex);
         
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
@@ -214,14 +215,14 @@ public class ShopManager : MonoBehaviour
     }
 
     // 상점 및 상점별 카테고리별 아이템을 모두 API로부터 가져오는 함수
-    public void GetShopsAndItemsFromAPI()
+    public void GetShopsAndItemsFromAPI(int selectedShopIndex)
     {
         SaveEquippedItems(); // MainScene으로 이동하기 전 장착 아이템 상태를 저장
-        StartCoroutine(GetShopsAndItems());
+        StartCoroutine(GetShopsAndItems(selectedShopIndex));
     }
 
     // API로부터 상점 및 아이템을 비동기적으로 가져오는 코루틴
-    IEnumerator GetShopsAndItems()
+    IEnumerator GetShopsAndItems(int selectedShopIndex)
     {
         using (UnityWebRequest shopRequest = UnityWebRequest.Get(ShopListapiUrl))
         {
@@ -268,15 +269,22 @@ public class ShopManager : MonoBehaviour
                     }
                 }
 
-                // 상점 UI와 첫 번째 상점 및 카테고리 아이템 설정
-                CreateShopUI();
-                OnShopSelected(0); // 첫 번째 상점 선택
-                OnCategorySelected(bagCategoryId, ButtonBag); // 기본 카테고리 선택
+                // 상점 UI와 상점 및 카테고리 아이템 설정
+                CreateShopUI(selectedShopIndex);
+                Debug.Log(selectedShopIndex + "번째 상점");
+
+                DropdownShop.value = selectedShopIndex;
+                OnShopSelected(selectedShopIndex); // 상점 선택
+
+                if (selectedShopIndex == 0) OnCategorySelected(bagCategoryId, ButtonBag);
+                else if (selectedShopIndex == 1) OnCategorySelected(necklaceCategoryId, ButtonNecklace);
+                else if (selectedShopIndex == 2) OnCategorySelected(hatCategoryId, ButtonHat);
+                else OnCategorySelected(glassesCategoryId, ButtonGlasses);
             }
         }
     }
 
-        // 트랜스폼 내에서 이름이 대소문자와 관계없이 특정 이름을 가진 본을 찾는 함수
+    // 트랜스폼 내에서 이름이 대소문자와 관계없이 특정 이름을 가진 본을 찾는 함수
     Transform FindBone(Transform parent, string boneName)
     {
         foreach (Transform child in parent.GetComponentsInChildren<Transform>())
@@ -290,7 +298,7 @@ public class ShopManager : MonoBehaviour
     }
 
     // 상점 UI 생성
-    void CreateShopUI()
+    void CreateShopUI(int index)
     {
         DropdownShop.ClearOptions();
         List<Dropdown.OptionData> shopOptions = new List<Dropdown.OptionData>();
@@ -305,7 +313,7 @@ public class ShopManager : MonoBehaviour
         }
 
         DropdownShop.AddOptions(shopOptions);
-        SetShopData(shopPrefab, shops[0]);// 첫 번째 상점 이미지 로드
+        SetShopData(shopPrefab, shops[index]);// 상점 이미지 로드
     }
 
     // 상점 이미지를 로드하고 Dropdown의 OptionData에 설정하는 함수
@@ -341,7 +349,7 @@ public class ShopManager : MonoBehaviour
         // 버튼 활성화/비활성화 로직
         UpdateCategoryButtons(selectedShopId);
 
-         DropdownItemOption.ClearOptions(); // 상점을 변경하면 옵션 드롭다운을 초기화
+        DropdownItemOption.ClearOptions(); // 상점을 변경하면 옵션 드롭다운을 초기화
 
          // 선택된 아이템 해제
         if (selectedItemObject != null)
