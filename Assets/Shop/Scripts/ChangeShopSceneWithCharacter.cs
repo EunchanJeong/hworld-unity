@@ -6,6 +6,15 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
+/// <summary>
+/// 캐릭터를 메인 화면에서 상점 화면으로 로드하기 위한 스크립트
+/// </summary>
+/// <author>정은찬</author>
+/// <since>2024.09.05</since>
+/// <version>1.0</version>
+/// <remarks>
+/// 수정일: 2024.09.05, 수정자: 정은찬, 최초 생성
+/// </remarks>
 public class ChangeShopSceneWithCharacter : MonoBehaviour
 {
     public GameObject character;
