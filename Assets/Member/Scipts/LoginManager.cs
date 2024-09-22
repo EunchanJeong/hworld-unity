@@ -7,6 +7,15 @@ using Newtonsoft.Json;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
+/// <summary>
+/// 로그인 스크립트
+/// </summary>
+/// <author>김지현</author>
+/// <since>2024.09.17</since>
+/// <version>1.0</version>
+/// <remarks>
+/// 수정일: 2024.09.17, 수정자: 김지현, 최초 생성
+/// </remarks>
 public class LoginManager : MonoBehaviour
 {
     private string apiUrl;

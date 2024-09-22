@@ -9,6 +9,15 @@ using UnityEngine.SceneManagement;
 using dotenv.net;
 
 namespace Coordination {
+    /// <summary>
+    /// 코디 상품 리스트 출력 스크립트
+    /// </summary>
+    /// <author>김지현</author>
+    /// <since>2024.09.09</since>
+    /// <version>1.0</version>
+    /// <remarks>
+    /// 수정일: 2024.09.09, 수정자: 김지현, 최초 생성
+    /// </remarks>
     public class CoordinationListResponseDTO
     {
         public int coordinationId {get; set;}
