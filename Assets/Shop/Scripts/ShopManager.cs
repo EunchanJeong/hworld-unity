@@ -42,6 +42,17 @@ public class ShopManager : MonoBehaviour
         public string itemOption { get; set; }
     }
 
+       public class CharacterItemResponseDTO
+    {
+        public int categoryId { get; set; } // 카테고리 ID
+        public int itemOptionId { get; set; } // 아이템 옵션 ID
+        public string itemOption { get; set; } // 아이템 옵션 이름
+        public int itemId { get; set; } // 아이템 ID
+        public string itemName { get; set; } // 아이템 이름
+        public int itemPrice { get; set; } // 아이템 가격
+        public string imageUrl { get; set; } // 아이템 이미지 URL
+    }
+
     // 상점 리스트와 상점별 카테고리별 아이템 데이터 저장소
     public List<Shop> shops = new List<Shop>();
     public Dictionary<int, Dictionary<int, List<Item>>> shopItems = new Dictionary<int, Dictionary<int, List<Item>>>(); // 상점 ID별, 카테고리 ID별 아이템 저장
@@ -102,6 +113,8 @@ public class ShopManager : MonoBehaviour
 
     public static int selectedShopIndex = 0;    // 상점 선택 매개변수
 
+    public static List<CharacterItemResponseDTO> characterResposeItems;
+
     // 게임이 시작될 때 실행되는 함수
     void Start()
     {
@@ -158,6 +171,9 @@ public class ShopManager : MonoBehaviour
             }
         }
 
+           
+       
+
         // 드롭다운에서 선택 변경 시 이벤트 설정
         DropdownItemOption.onValueChanged.AddListener(OnOptionSelected);
 
@@ -187,6 +203,8 @@ public class ShopManager : MonoBehaviour
         {
             Debug.LogError("IconExit 버튼을 찾을 수 없습니다.");
         }
+
+  
     }
 
     public void Update()
@@ -198,6 +216,127 @@ public class ShopManager : MonoBehaviour
             SceneManager.LoadScene("MainScene");
         }
     }
+
+   // 캐릭터 아이템을 가져오고 매칭하는 코루틴
+private IEnumerator GetCharacterItemAndSelectMatchingShopItems()
+{
+    yield return StartCoroutine(GetCharacterItemCoroutine());
+
+    // 캐릭터 아이템을 다 가져온 후에 SelectMatchingShopItems 실행
+    SelectMatchingShopItems();
+}
+
+// 서버에서 캐릭터 아이템 정보를 가져오는 메서드
+private IEnumerator GetCharacterItemCoroutine()
+{
+    string basicApiUrl = ServerConfig.hostUrl;
+    string getCharacterItemApiUrl = basicApiUrl + "/characters/item";
+
+    using (UnityWebRequest request = UnityWebRequest.Get(getCharacterItemApiUrl))
+    {
+        SetHeaders(request);
+
+        yield return request.SendWebRequest();
+
+        if (request.result == UnityWebRequest.Result.ConnectionError || request.result == UnityWebRequest.Result.ProtocolError)
+        {
+            Debug.LogError("아이템 가져오기 에러 : " + request.error);
+        }
+        else
+        {
+            string jsonResponse = request.downloadHandler.text;
+            characterResposeItems = JsonConvert.DeserializeObject<List<CharacterItemResponseDTO>>(jsonResponse);
+            Debug.Log("아이템 갯수: " + characterResposeItems.Count);
+        }
+    }
+}
+
+// 서버에서 가져온 아이템과 상점 아이템을 비교하여 자동 선택하는 메서드
+public void SelectMatchingShopItems()
+{
+    if (characterResposeItems == null)
+    {
+        Debug.Log("캐릭터 장착 아이템 정보가 없습니다.");
+        return;
+    }
+
+    // itemParent에서 모든 자식 오브젝트를 가져옴
+    foreach (Transform itemTransform in itemParent)
+    {
+        // 아이템 오브젝트의 데이터를 찾아서 비교할 수 있도록 Dictionary에서 찾음
+        Item shopItem = null;
+
+        // itemTransform에서 ItemNameText 컴포넌트를 찾아서 텍스트를 가져옴
+        Text itemNameTextComponent = itemTransform.Find("ItemNameText").GetComponent<Text>();
+        if (itemNameTextComponent != null)
+        {
+            string itemName = itemNameTextComponent.text; // 실제 아이템 이름을 가져옴
+            Debug.Log("itemName:: " + itemName);
+
+            // shopItems에서 itemName을 비교하여 해당 아이템을 찾음
+            foreach (var categoryItems in shopItems[selectedShopId])
+            {
+                foreach (var item in categoryItems.Value)
+                {
+                    if (item.itemName == itemName) // 실제 아이템 이름과 비교
+                    {
+                        shopItem = item;
+                        break;
+                    }
+                }
+                if (shopItem != null) break; // 찾으면 더 이상 탐색하지 않음
+            }
+        }
+        else
+        {
+            Debug.LogError("ItemNameText를 찾을 수 없습니다.");
+            continue; // itemNameText를 찾지 못하면 건너뜀
+        }
+
+        if (shopItem == null)
+        {
+            Debug.Log("shopItem 없음");
+            continue; // 아이템을 찾지 못한 경우 건너뜀
+        }
+
+        // 캐릭터 장착 아이템과 상점 아이템을 비교
+        foreach (var characterItem in characterResposeItems)
+        {
+            // itemOptions를 foreach로 순회하여 매칭되는 itemOptionId가 있는지 확인
+            foreach (var option in shopItem.itemOptions)
+            {
+                Debug.Log("option.itemOptionId : " + option.itemOptionId);
+                Debug.Log("characterItem.itemOptionId : " + characterItem.itemOptionId);
+                if (option.itemOptionId == characterItem.itemOptionId)
+                {
+                    Debug.Log("option.itemOptionId 일치함: " + option.itemOptionId);
+
+                    // 아이템이 매칭될 경우 테두리 색상 적용
+                    SetItemBorderColor(itemTransform.gameObject, true, BolderColor);
+
+                    // **자동 선택 처리**
+                    selectedItemObject = itemTransform.gameObject; // 자동으로 선택된 아이템을 기록
+                    DropdownItemOption.ClearOptions(); // 드롭다운을 초기화하고 옵션 설정
+                    currentOptions = shopItem.itemOptions; // 옵션 리스트를 현재 선택된 아이템의 옵션으로 설정
+
+                    List<Dropdown.OptionData> optionDataList = new List<Dropdown.OptionData>();
+                    foreach (var opt in shopItem.itemOptions)
+                    {
+                        Dropdown.OptionData optionData = new Dropdown.OptionData(opt.itemOption);
+                        optionDataList.Add(optionData);
+                    }
+                    DropdownItemOption.AddOptions(optionDataList);
+
+                    // 드롭다운 값 설정 (매칭된 아이템의 옵션을 선택)
+                    DropdownItemOption.value = shopItem.itemOptions.FindIndex(opt => opt.itemOptionId == characterItem.itemOptionId);
+                    OnOptionSelected(DropdownItemOption.value);
+
+                    break; // 해당 아이템과 매칭된 경우 반복문 종료
+                }
+            }
+        }
+    }
+}
 
     // 공통 헤더 설정 메서드
     private static UnityWebRequest SetHeaders(UnityWebRequest request)
@@ -280,6 +419,9 @@ public class ShopManager : MonoBehaviour
                 else if (selectedShopIndex == 1) OnCategorySelected(necklaceCategoryId, ButtonNecklace);
                 else if (selectedShopIndex == 2) OnCategorySelected(hatCategoryId, ButtonHat);
                 else OnCategorySelected(glassesCategoryId, ButtonGlasses);
+
+                 // 서버에서 캐릭터 아이템 가져오기 (완료 후 매칭 실행)
+                 StartCoroutine(GetCharacterItemAndSelectMatchingShopItems());
             }
         }
     }
@@ -373,7 +515,7 @@ public class ShopManager : MonoBehaviour
             // 아이템이 없으면 기본 카테고리로 이동
             OnCategorySelected(bagCategoryId, ButtonBag);
         }
-
+        StartCoroutine(GetCharacterItemAndSelectMatchingShopItems());
         // 스크롤을 맨 위로 이동시킴
         if (itemScrollRect != null)
         {
