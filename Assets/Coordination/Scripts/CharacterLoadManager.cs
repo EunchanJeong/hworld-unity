@@ -4,6 +4,15 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.IO;
 
+/// <summary>
+/// 씬 전환 시 캐릭터를 로드하기 위한 스크립트
+/// </summary>
+/// <author>김지현</author>
+/// <since>2024.09.09</since>
+/// <version>1.0</version>
+/// <remarks>
+/// 수정일: 2024.09.09, 수정자: 김지현, 최초 생성
+/// </remarks>
 public class CharacterLoadManager : MonoBehaviour
 {
     private GameObject characterInstance;

@@ -18,6 +18,15 @@ public class UploadResponse
     public string message;
 }
 
+/// <summary>
+/// 코디 저장 스크립트
+/// </summary>
+/// <author>김지현</author>
+/// <since>2024.09.09</since>
+/// <version>1.0</version>
+/// <remarks>
+/// 수정일: 2024.09.09, 수정자: 김지현, 최초 생성
+/// </remarks>
 public class CoordinationSaveManager : MonoBehaviour
 {
     public class CharacterItemResponseDTO
