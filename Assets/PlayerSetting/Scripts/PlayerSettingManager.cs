@@ -11,8 +11,15 @@ using System;
 using System;
 using System.IO;
 
-
-
+/// <summary>
+/// 캐릭터 설정을 변경하기 위한 스크립트
+/// </summary>
+/// <author>조영욱</author>
+/// <since>2024.09.09</since>
+/// <version>1.0</version>
+/// <remarks>
+/// 수정일: 2024.09.09, 수정자: 조영욱, 최초 생성
+/// </remarks>
 public class PlayerSettingResponseDTO
 {
     public int speed { get; set; }
@@ -87,19 +94,6 @@ public class PlayerSettingManager : MonoBehaviour
     public static IEnumerator GetPlayerSettingCoroutine(System.Action callback)
     {
         if (playerSettingApiUrl == null) {
-            // // .env 파일 로드
-            // DotEnv.Load();
-            
-     
-        // // 환경 변수 확인
-        // string apiUrl = Environment.GetEnvironmentVariable("UNITY_APP_API_URL");
-        // Debug.Log("Loaded API URL: " + apiUrl);
-
-        //     // 환경 변수 불러오기
-        //     string basicApiUrl = Environment.GetEnvironmentVariable("UNITY_APP_API_URL");
-        //     Debug.Log("basicApiUrl -> " + basicApiUrl);
-
-        //     basicApiUrl = "http://localhost:8080"; 
             string basicApiUrl = ServerConfig.hostUrl;
 
             playerSettingApiUrl = basicApiUrl + "/characters/state";

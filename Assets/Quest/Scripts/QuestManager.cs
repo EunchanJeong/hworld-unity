@@ -8,6 +8,15 @@ using UnityEngine.SceneManagement;
 using dotenv.net;
 using System;
 
+/// <summary>
+/// 퀘스트를 관리하기 위한 스크립트
+/// </summary>
+/// <author>조영욱</author>
+/// <since>2024.09.07</since>
+/// <version>1.0</version>
+/// <remarks>
+/// 수정일: 2024.09.07, 수정자: 조영욱, 최초 생성
+/// </remarks>
 public class QuestListResponseDTO
 {
     public int questId {get; set;}

@@ -2,6 +2,15 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
+/// <summary>
+/// 드래그할 수 있는 Bar 스크립트
+/// </summary>
+/// <author>조영욱</author>
+/// <since>2024.09.09</since>
+/// <version>1.0</version>
+/// <remarks>
+/// 수정일: 2024.09.09, 수정자: 조영욱, 최초 생성
+/// </remarks>
 public class DraggableBar : MonoBehaviour, IDragHandler, IEndDragHandler
 {
     private RectTransform _rectTransform;
@@ -35,6 +44,5 @@ public class DraggableBar : MonoBehaviour, IDragHandler, IEndDragHandler
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        // 드래그 종료 시 저장할 값이 필요하다면 이곳에서 처리
     }
 }
