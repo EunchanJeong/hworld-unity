@@ -3,5 +3,5 @@ using UnityEngine;
 public class ServerConfig : ScriptableObject
 {
     [Header("Server URL")]
-    public static string hostUrl = "http://localhost:8080";
+    public static string hostUrl = "https://api.oasis-hworld.site";
 }

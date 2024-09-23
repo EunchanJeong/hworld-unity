@@ -9,6 +9,15 @@ using System.Globalization;
 using dotenv.net;
 using System;
 
+/// <summary>
+/// 상점 화면을 관리하기 위한 스크립트
+/// </summary>
+/// <author>정은찬</author>
+/// <since>2024.09.05</since>
+/// <version>1.0</version>
+/// <remarks>
+/// 수정일: 2024.09.05, 수정자: 정은찬, 최초 생성
+/// </remarks>
 public class ShopManager : MonoBehaviour
 {
     // 상점과 아이템을 가져올 API 엔드포인트

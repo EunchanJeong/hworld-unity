@@ -4,6 +4,15 @@ using UnityEngine;
 using UnityEngine.Networking;
 using Newtonsoft.Json;
 
+/// <summary>
+/// 메인씬에서 캐릭터 상품 장착을 관리하기 위한 스크립트
+/// </summary>
+/// <author>정은찬</author>
+/// <since>2024.09.05</since>
+/// <version>1.0</version>
+/// <remarks>
+/// 수정일: 2024.09.05, 수정자: 정은찬, 최초 생성
+/// </remarks>
 public class PlayerEquipmentManager : MonoBehaviour
 {
     // 캐릭터의 본 위치
